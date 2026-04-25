@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ── Parent user documents ─────────────────────────────────────────────
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // Children sub-collection
+      match /children/{childId} {
+        allow read, write: if isOwner(userId);
+
+        // Sessions, progress, rewards all scoped to the parent
+        match /{subcollection}/{docId} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+    }
+
+    // ── Game definitions ──────────────────────────────────────────────────
+    // Public read, no client writes (Admin SDK only)
+    match /games/{gameId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /questions/{questionId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // ── Badge definitions ─────────────────────────────────────────────────
+    match /badges/{badgeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── Catch-all: deny everything else ──────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
