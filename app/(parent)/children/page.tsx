@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useChildren } from "@/hooks/useChildren";
 import { useChildStore } from "@/lib/stores/child-store";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { deleteChild } from "@/lib/firebase/children";
 
 const AVATAR_EMOJI: Record<string, string> = {
   fox: "🦊",
@@ -18,6 +21,26 @@ const AVATAR_EMOJI: Record<string, string> = {
 export default function ChildrenPage() {
   const { children, loading } = useChildren();
   const { activeChild, setActiveChild } = useChildStore();
+  const user = useAuthStore((s) => s.user);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete(childId: string) {
+    if (!user) return;
+    setDeleting(true);
+    try {
+      await deleteChild(user.uid, childId);
+      if (activeChild?.id === childId) {
+        setActiveChild(null);
+      }
+    } catch (err) {
+      console.error("Failed to delete child:", err);
+    } finally {
+      setDeleting(false);
+      setConfirmDeleteId(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -26,6 +49,8 @@ export default function ChildrenPage() {
       </div>
     );
   }
+
+  const childToDelete = children.find((c) => c.id === confirmDeleteId);
 
   return (
     <div className="p-8 max-w-3xl">
@@ -110,10 +135,54 @@ export default function ChildrenPage() {
                   >
                     Play →
                   </Link>
+                  <button
+                    onClick={() => setConfirmDeleteId(child.id)}
+                    className="px-3 py-2 rounded-lg border border-red-100 text-red-400 text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                    title="Remove child"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {confirmDeleteId && childToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4">
+                {AVATAR_EMOJI[childToDelete.avatarId] ?? "🧒"}
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                Remove {childToDelete.name}?
+              </h3>
+              <p className="text-gray-500 text-sm">
+                This will permanently delete{" "}
+                <span className="font-semibold">{childToDelete.name}&apos;s</span> profile
+                and all their progress. This cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDeleteId)}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition-colors disabled:opacity-50"
+              >
+                {deleting ? "Removing…" : "Yes, remove"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

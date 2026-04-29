@@ -1,6 +1,8 @@
 import {
   collection,
   addDoc,
+  deleteDoc,
+  doc,
   onSnapshot,
   query,
   orderBy,
@@ -46,6 +48,11 @@ export async function createChild(input: CreateChildInput): Promise<string> {
   });
 
   return docRef.id;
+}
+
+export async function deleteChild(parentUid: string, childId: string): Promise<void> {
+  const db = getClientDb();
+  await deleteDoc(doc(db, "users", parentUid, "children", childId));
 }
 
 export function subscribeToChildren(
