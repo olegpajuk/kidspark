@@ -1,11 +1,16 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signInWithEmail, signInWithGoogle } from "@/lib/firebase/auth";
+import {
+  signInWithEmail,
+  signInWithGoogle,
+  handleGoogleRedirectResult,
+  getCurrentUser,
+} from "@/lib/firebase/auth";
 import { getIdToken } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
+import { getClientAuth } from "@/lib/firebase/config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +24,11 @@ import {
 } from "@/components/ui/card";
 
 async function createSession() {
-  const idToken = await getIdToken(auth.currentUser!);
+  const auth = getClientAuth();
+  if (!auth.currentUser) {
+    throw new Error("No authenticated user");
+  }
+  const idToken = await getIdToken(auth.currentUser);
   await fetch("/api/auth/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -37,6 +46,26 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [checkingRedirect, setCheckingRedirect] = useState(true);
+
+  useEffect(() => {
+    async function checkRedirectResult() {
+      try {
+        const user = await handleGoogleRedirectResult();
+        if (user) {
+          await createSession();
+          router.push(from as "/dashboard");
+          return;
+        }
+      } catch (err) {
+        console.error("Redirect check error:", err);
+      } finally {
+        setCheckingRedirect(false);
+      }
+    }
+
+    checkRedirectResult();
+  }, [from, router]);
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -48,13 +77,17 @@ function LoginForm() {
       await createSession();
       router.push(from as "/dashboard");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Login failed";
+      const firebaseError = err as { code?: string; message?: string };
+      const code = firebaseError.code ?? "";
+      
       if (
-        message.includes("user-not-found") ||
-        message.includes("wrong-password") ||
-        message.includes("invalid-credential")
+        code.includes("user-not-found") ||
+        code.includes("wrong-password") ||
+        code.includes("invalid-credential")
       ) {
         setError("Invalid email or password.");
+      } else if (code.includes("too-many-requests")) {
+        setError("Too many attempts. Please try again later.");
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -72,13 +105,46 @@ function LoginForm() {
       await createSession();
       router.push(from as "/dashboard");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "";
-      if (!message.includes("popup-closed-by-user")) {
-        setError("Google sign-in failed. Please try again.");
+      const firebaseError = err as { code?: string; message?: string };
+      const code = firebaseError.code ?? "";
+      
+      if (code.includes("popup-closed-by-user")) {
+        setGoogleLoading(false);
+        return;
+      }
+      
+      if (code.includes("unauthorized-domain")) {
+        setError(
+          "This domain is not authorized for Google sign-in. Please check Firebase Console > Authentication > Settings > Authorized domains."
+        );
+      } else if (code.includes("operation-not-allowed")) {
+        setError(
+          "Google sign-in is not enabled. Please enable it in Firebase Console > Authentication > Sign-in method."
+        );
+      } else if (code.includes("popup-blocked")) {
+        setError("Popup was blocked. Please allow popups for this site and try again.");
+      } else if (code.includes("network-request-failed")) {
+        setError("Network error. Please check your internet connection.");
+      } else {
+        setError(`Google sign-in failed: ${code || "Unknown error"}`);
+        console.error("Google sign-in error:", err);
       }
     } finally {
       setGoogleLoading(false);
     }
+  }
+
+  if (checkingRedirect) {
+    return (
+      <Card className="shadow-xl border-0">
+        <CardContent className="py-12">
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-500">Checking sign-in status...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

@@ -13,15 +13,16 @@ service cloud.firestore {
 
     // ── Parent user documents ─────────────────────────────────────────────
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      // Allow any authenticated user to read/write their own document
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
 
       // Children sub-collection
       match /children/{childId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
 
         // Sessions, progress, rewards all scoped to the parent
         match /{subcollection}/{docId} {
-          allow read, write: if isOwner(userId);
+          allow read, write: if isAuthenticated() && request.auth.uid == userId;
         }
       }
     }

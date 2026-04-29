@@ -10,7 +10,31 @@ export type GameId =
   | "piggy-bank-goals"
   | "word-builder"
   | "map-puzzle"
-  | "binary-builder";
+  | "binary-builder"
+  | "flashcard-flip"
+  | "missing-letter"
+  | "spelling-bee"
+  | "word-match"
+  | "word-categories"
+  | "rhyming-words"
+  | "letter-chain"
+  | "crossword"
+  | "word-search"
+  | "sentence-builder"
+  | "synonym-match"
+  | "plural-practice"
+  | "verb-tense"
+  | "dictation"
+  | "listen-tap"
+  | "pronunciation"
+  | "speech-games"
+  // Finance games
+  | "coin-counter"
+  | "wants-needs"
+  | "piggy-bank"
+  | "shop-change"
+  | "lemonade-stand"
+  | "budget-boss";
 
 export type GameStatus = "locked" | "available" | "mastered";
 

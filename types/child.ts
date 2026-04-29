@@ -50,4 +50,6 @@ export interface ChildSummary {
   avatarId: AvatarId;
   starBalance: number;
   levels: Record<SubjectId, ChildLevel>;
+  age?: number;
+  createdAt?: string;
 }
