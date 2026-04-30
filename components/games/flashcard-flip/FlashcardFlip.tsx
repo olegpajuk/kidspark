@@ -12,11 +12,18 @@ import type { FlashcardQuestion } from "@/types/english";
 
 const QUESTIONS_PER_SESSION = 10;
 
-interface Props {
-  difficulty: DifficultyTier;
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
 }
 
-export function FlashcardFlip({ difficulty }: Props) {
+interface Props {
+  difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
+}
+
+export function FlashcardFlip({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { speak, isSpeaking } = useTTS();
   const { playSound } = useAudio();
@@ -53,7 +60,14 @@ export function FlashcardFlip({ difficulty }: Props) {
 
     setTimeout(() => {
       if (currentIdx + 1 >= QUESTIONS_PER_SESSION) {
+        const finalScore = correct ? score + 1 : score;
+        const finalStars = finalScore >= 9 ? 3 : finalScore >= 7 ? 2 : finalScore >= 5 ? 1 : 0;
         setIsComplete(true);
+        onComplete?.({
+          correct: finalScore,
+          total: QUESTIONS_PER_SESSION,
+          stars: finalStars as 0 | 1 | 2 | 3,
+        });
       } else {
         setCurrentIdx((i) => i + 1);
         setSelectedAnswer(null);
@@ -95,12 +109,12 @@ export function FlashcardFlip({ difficulty }: Props) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-6">
+      <div className="flex-1 flex flex-col items-center justify-center px-3 py-4 gap-4">
         {/* Prompt label */}
         <AnimatePresence mode="wait">
           <motion.p
             key={currentIdx}
-            className="text-gray-500 text-sm font-medium"
+            className="text-gray-500 text-xs font-medium"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -109,11 +123,11 @@ export function FlashcardFlip({ difficulty }: Props) {
           </motion.p>
         </AnimatePresence>
 
-        {/* Main stimulus card */}
+        {/* Main stimulus card - smaller on mobile */}
         <AnimatePresence mode="wait">
           <motion.div
             key={`card-${currentIdx}`}
-            className="w-56 h-56 rounded-3xl bg-white shadow-xl flex flex-col items-center justify-center gap-3 select-none"
+            className="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl bg-white shadow-lg flex flex-col items-center justify-center gap-2 select-none"
             initial={{ opacity: 0, scale: 0.85, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -121,25 +135,25 @@ export function FlashcardFlip({ difficulty }: Props) {
           >
             {isImageToWord ? (
               <>
-                <span className="text-8xl">{currentQ.word.emoji}</span>
+                <span className="text-6xl sm:text-7xl">{currentQ.word.emoji}</span>
                 <button
                   onClick={() => speak(currentQ.word.word)}
-                  className="flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors"
+                  className="flex items-center gap-1 bg-purple-50 text-purple-600 rounded-full px-3 py-1 text-[10px] font-semibold transition-colors"
                 >
-                  <Volume2 className="w-3.5 h-3.5" />
+                  <Volume2 className="w-3 h-3" />
                   {isSpeaking ? "Speaking…" : "Hear it"}
                 </button>
               </>
             ) : (
               <>
-                <span className="text-4xl font-black text-[#6C63FF] tracking-wide uppercase text-center px-4">
+                <span className="text-2xl sm:text-3xl font-black text-[#6C63FF] tracking-wide uppercase text-center px-3">
                   {currentQ.word.word}
                 </span>
                 <button
                   onClick={() => speak(currentQ.word.word)}
-                  className="flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors"
+                  className="flex items-center gap-1 bg-purple-50 text-purple-600 rounded-full px-3 py-1 text-[10px] font-semibold transition-colors"
                 >
-                  <Volume2 className="w-3.5 h-3.5" />
+                  <Volume2 className="w-3 h-3" />
                   {isSpeaking ? "Speaking…" : "Hear it"}
                 </button>
               </>
@@ -147,7 +161,7 @@ export function FlashcardFlip({ difficulty }: Props) {
           </motion.div>
         </AnimatePresence>
 
-        {/* Answer options */}
+        {/* Answer options - touchable but more compact */}
         <AnimatePresence mode="wait">
           <motion.div
             key={`opts-${currentIdx}`}
@@ -157,16 +171,16 @@ export function FlashcardFlip({ difficulty }: Props) {
             exit={{ opacity: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {currentQ.options.map((opt) => {
                 const isSelected = selectedAnswer === opt;
                 const isCorrect = opt === currentQ.correctAnswer;
 
                 let bg =
-                  "bg-white border-2 border-purple-200 text-gray-800 hover:border-purple-400 hover:scale-[1.02] active:scale-[0.98]";
+                  "bg-white border-2 border-purple-200 text-gray-800 active:scale-[0.98]";
                 if (selectedAnswer) {
                   if (isCorrect)
-                    bg = "bg-green-500 border-green-500 text-white scale-[1.03]";
+                    bg = "bg-green-500 border-green-500 text-white scale-[1.02]";
                   else if (isSelected)
                     bg = "bg-red-400 border-red-400 text-white";
                   else
@@ -178,15 +192,9 @@ export function FlashcardFlip({ difficulty }: Props) {
                     key={opt}
                     onClick={() => handleOptionSelect(opt)}
                     disabled={!!selectedAnswer}
-                    className={`py-4 rounded-2xl font-bold text-sm transition-all ${bg}`}
+                    className={`py-3 rounded-xl font-bold text-xs transition-all ${bg}`}
                   >
-                    {isImageToWord ? (
-                      opt
-                    ) : (
-                      // word-to-image: options are still the word text (correct = matching word)
-                      // but displayed as emoji if we can find it
-                      opt
-                    )}
+                    {opt}
                   </button>
                 );
               })}
@@ -195,7 +203,7 @@ export function FlashcardFlip({ difficulty }: Props) {
             {/* Wrong answer hint */}
             {selectedAnswer && selectedAnswer !== currentQ.correctAnswer && (
               <motion.p
-                className="mt-3 text-center text-xs text-green-700 font-medium bg-green-50 border border-green-200 rounded-xl py-2 px-3"
+                className="mt-2 text-center text-[10px] text-green-700 font-medium bg-green-50 border border-green-200 rounded-lg py-1.5 px-2"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
               >

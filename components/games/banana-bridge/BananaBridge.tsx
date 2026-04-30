@@ -128,36 +128,36 @@ function SimpleCountingGame({
   const fruitEmojis = ["🍌", "🍎", "🍊", "🍇", "🍓", "🥝", "🍑", "🍐", "🍒", "🥭"];
 
   return (
-    <div className="flex flex-col h-full p-4 gap-4 relative overflow-auto">
+    <div className="flex flex-col h-full p-3 gap-3 relative overflow-auto">
       {/* Celebration sparkles */}
       <Sparkles active={isComplete} />
 
-      {/* Question Header */}
+      {/* Question Header - more compact */}
       <motion.div 
-        className="text-center py-2"
+        className="text-center py-1"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <p className="text-sm text-gray-500 mb-1">Question {questionNumber} of {totalQuestions}</p>
-        <p className="text-3xl font-bold text-gray-800">
+        <p className="text-xs text-gray-500 mb-0.5">Question {questionNumber} of {totalQuestions}</p>
+        <p className="text-2xl font-bold text-gray-800">
           {question.addends.join(" + ")} = <span className="text-red-400">?</span>
         </p>
       </motion.div>
 
-      {/* Number Line Progress */}
+      {/* Number Line Progress - more compact */}
       <motion.div 
-        className="bg-white rounded-2xl p-4 shadow-md"
+        className="bg-white rounded-xl p-3 shadow-sm"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-600">Count</span>
-          <span className="text-sm font-bold text-gray-800">{currentValue} / {question.correctAnswer}</span>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-medium text-gray-600">Count</span>
+          <span className="text-xs font-bold text-gray-800">{currentValue} / {question.correctAnswer}</span>
         </div>
         
         {/* Progress bar */}
-        <div className="relative h-8 bg-gray-100 rounded-full overflow-hidden">
+        <div className="relative h-6 bg-gray-100 rounded-full overflow-hidden">
           <motion.div
             className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-400 to-green-500 rounded-full"
             initial={{ width: 0 }}
@@ -168,8 +168,8 @@ function SimpleCountingGame({
           {/* Current position indicator */}
           {currentValue > 0 && (
             <motion.div
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-md border-2 border-green-500 flex items-center justify-center text-xs font-bold"
-              style={{ left: `calc(${progressPercent}% - 12px)` }}
+              className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow border-2 border-green-500 flex items-center justify-center text-[10px] font-bold"
+              style={{ left: `calc(${progressPercent}% - 10px)` }}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
             >
@@ -179,18 +179,18 @@ function SimpleCountingGame({
         </div>
       </motion.div>
 
-      {/* Result Display */}
+      {/* Result Display - more compact */}
       <motion.div
-        className="bg-white rounded-2xl px-6 py-5 shadow-md text-center"
+        className="bg-white rounded-xl px-4 py-3 shadow-sm text-center"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="flex items-center justify-center gap-3 text-3xl font-bold">
+        <div className="flex items-center justify-center gap-2 text-xl font-bold">
           {question.addends.map((addend, i) => (
-            <span key={i} className="flex items-center gap-3">
+            <span key={i} className="flex items-center gap-2">
               {i > 0 && <span className="text-gray-300">+</span>}
-              <span className="bg-yellow-100 px-4 py-2 rounded-xl text-yellow-700">
+              <span className="bg-yellow-100 px-3 py-1.5 rounded-lg text-yellow-700">
                 {addend}
               </span>
             </span>
@@ -198,7 +198,7 @@ function SimpleCountingGame({
           <span className="text-gray-300">=</span>
           <motion.span
             key={currentValue}
-            className={`min-w-[60px] px-4 py-2 rounded-xl ${
+            className={`min-w-[44px] px-3 py-1.5 rounded-lg ${
               isComplete
                 ? "bg-green-100 text-green-700"
                 : currentValue > 0
@@ -215,36 +215,36 @@ function SimpleCountingGame({
         <AnimatePresence>
           {isComplete && (
             <motion.div
-              className="mt-4"
+              className="mt-2"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
             >
-              <span className="text-4xl">🎉</span>
-              <p className="text-green-600 font-bold text-lg mt-1">Correct! Well done!</p>
+              <span className="text-3xl">🎉</span>
+              <p className="text-green-600 font-bold text-sm mt-0.5">Correct! Well done!</p>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Fruit Basket - Tap to Add */}
+      {/* Fruit Basket - Tap to Add - more compact */}
       <motion.div 
-        className="bg-white rounded-2xl p-4 shadow-md flex-1"
+        className="bg-white rounded-xl p-3 shadow-sm flex-1"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="text-center mb-4">
-          <span className="text-lg">🧺</span>
-          <p className="text-sm font-semibold text-gray-700 mt-1">
+        <div className="text-center mb-2">
+          <span className="text-base">🧺</span>
+          <p className="text-xs font-semibold text-gray-700">
             Tap each fruit to count!
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-[10px] text-gray-500">
             {totalFruits - fruitsPlaced} fruits remaining
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-2">
           {Array.from({ length: totalFruits }, (_, i) => {
             const isUsed = i < fruitsPlaced;
             
@@ -253,13 +253,12 @@ function SimpleCountingGame({
                 key={i}
                 onClick={handleAddFruit}
                 disabled={isUsed || isComplete}
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl
+                className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl
                   transition-all select-none ${
                     isUsed
                       ? "bg-gray-100 opacity-40 cursor-not-allowed scale-90"
-                      : "bg-white shadow-lg border-2 border-yellow-300 hover:border-yellow-400 hover:shadow-xl cursor-pointer active:scale-90"
+                      : "bg-white shadow border-2 border-yellow-300 cursor-pointer active:scale-90"
                   }`}
-                whileHover={!isUsed && !isComplete ? { scale: 1.1 } : {}}
                 whileTap={!isUsed && !isComplete ? { scale: 0.9 } : {}}
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ 
@@ -276,9 +275,9 @@ function SimpleCountingGame({
         </div>
       </motion.div>
 
-      {/* Hint Button */}
+      {/* Hint Button - more compact */}
       <motion.div 
-        className="flex justify-center gap-3"
+        className="flex justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
@@ -286,14 +285,13 @@ function SimpleCountingGame({
         {!isComplete && (
           <motion.button
             onClick={handleShowHint}
-            className="px-5 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl font-medium text-sm
-              hover:bg-yellow-200 active:scale-95 transition-all flex items-center gap-2 shadow-sm"
-            whileHover={{ scale: 1.05 }}
+            className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg font-medium text-xs
+              active:scale-95 transition-all flex items-center gap-1.5 shadow-sm"
             whileTap={{ scale: 0.95 }}
           >
             💡 Need a hint?
             {hintsUsed > 0 && (
-              <span className="bg-yellow-200 px-2 py-0.5 rounded-full text-xs">
+              <span className="bg-yellow-200 px-1.5 py-0.5 rounded-full text-[10px]">
                 {hintsUsed}
               </span>
             )}
@@ -305,13 +303,13 @@ function SimpleCountingGame({
       <AnimatePresence>
         {showHint && (
           <motion.div
-            className="fixed bottom-24 left-4 right-4 bg-yellow-50 border-2 border-yellow-300 
-              rounded-2xl p-4 shadow-xl z-50 max-w-md mx-auto"
+            className="fixed bottom-20 left-3 right-3 bg-yellow-50 border-2 border-yellow-300 
+              rounded-xl p-3 shadow-lg z-50 max-w-md mx-auto"
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
           >
-            <p className="text-center text-yellow-800 font-medium">
+            <p className="text-center text-yellow-800 font-medium text-sm">
               💡 {question.hint}
             </p>
           </motion.div>

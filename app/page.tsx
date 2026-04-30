@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { WelcomeLanding } from "@/components/marketing/WelcomeLanding";
+import { OnboardingFlow } from "@/components/marketing/OnboardingFlow";
 
 export default async function RootPage() {
   const cookieStore = await cookies();
@@ -10,5 +10,5 @@ export default async function RootPage() {
     redirect("/dashboard");
   }
 
-  return <WelcomeLanding />;
+  return <OnboardingFlow />;
 }

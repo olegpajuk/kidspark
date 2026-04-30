@@ -12,11 +12,18 @@ import type { MissingLetterQuestion } from "@/types/english";
 
 const QUESTIONS_PER_SESSION = 10;
 
-interface Props {
-  difficulty: DifficultyTier;
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
 }
 
-export function MissingLetter({ difficulty }: Props) {
+interface Props {
+  difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
+}
+
+export function MissingLetter({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { speak, isSpeaking } = useTTS();
   const { playSound } = useAudio();
@@ -68,7 +75,14 @@ export function MissingLetter({ difficulty }: Props) {
 
       setTimeout(() => {
         if (currentIdx + 1 >= QUESTIONS_PER_SESSION) {
+          const finalScore = allCorrect ? score + 1 : score;
+          const finalStars = finalScore >= 9 ? 3 : finalScore >= 7 ? 2 : finalScore >= 5 ? 1 : 0;
           setIsComplete(true);
+          onComplete?.({
+            correct: finalScore,
+            total: QUESTIONS_PER_SESSION,
+            stars: finalStars as 0 | 1 | 2 | 3,
+          });
         } else {
           setCurrentIdx((i) => i + 1);
           setFilledLetters({});
@@ -110,20 +124,20 @@ export function MissingLetter({ difficulty }: Props) {
         <motion.div className="h-full bg-[#FF6B6B]" animate={{ width: `${(currentIdx / QUESTIONS_PER_SESSION) * 100}%` }} transition={{ type: "spring" }} />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-6">
-        {/* Emoji + word display */}
+      <div className="flex-1 flex flex-col items-center justify-center px-3 py-4 gap-4">
+        {/* Emoji + word display - more compact */}
         <div className="text-center">
-          <div className="text-7xl mb-4">{currentQ.word.emoji}</div>
+          <div className="text-5xl mb-3">{currentQ.word.emoji}</div>
           <button
             onClick={() => speak(currentQ.word.word)}
-            className="flex items-center gap-2 mx-auto mb-4 bg-red-100 hover:bg-red-200 text-red-700 rounded-full px-4 py-2 text-sm transition-colors"
+            className="flex items-center gap-1.5 mx-auto mb-3 bg-red-100 text-red-700 rounded-full px-3 py-1.5 text-xs transition-colors"
           >
-            <Volume2 className="w-4 h-4" />
+            <Volume2 className="w-3.5 h-3.5" />
             {isSpeaking ? "Speaking…" : "Hear hint"}
           </button>
 
-          {/* Word tiles */}
-          <div className="flex gap-2 justify-center flex-wrap">
+          {/* Word tiles - smaller */}
+          <div className="flex gap-1.5 justify-center flex-wrap">
             {wordChars.map((char, idx) => {
               const isMissing = currentQ.missingIndices.includes(idx);
               const filled = filledLetters[idx];
@@ -146,7 +160,7 @@ export function MissingLetter({ difficulty }: Props) {
               return (
                 <div
                   key={idx}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-black uppercase ${bg} ${isMissing && !filled ? "animate-pulse" : ""}`}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-black uppercase ${bg} ${isMissing && !filled ? "animate-pulse" : ""}`}
                 >
                   {isMissing ? (filled ?? "") : char}
                 </div>
@@ -155,25 +169,24 @@ export function MissingLetter({ difficulty }: Props) {
           </div>
 
           {Object.keys(filledLetters).length > 0 && !submitted && (
-            <button onClick={handleClear} className="mt-3 text-xs text-red-400 hover:text-red-600 underline">
+            <button onClick={handleClear} className="mt-2 text-[10px] text-red-400 underline">
               Clear
             </button>
           )}
         </div>
 
-        {/* Letter options */}
-        <div className="flex flex-wrap gap-3 justify-center max-w-xs">
+        {/* Letter options - smaller but touchable */}
+        <div className="flex flex-wrap gap-2 justify-center max-w-xs">
           {currentQ.options.map((letter) => {
-            // When wrong answer submitted, highlight the correct missing letter(s) in the bank
             const isCorrectAnswer = submitted && !isCorrect &&
               currentQ.correctAnswers.includes(letter) &&
               !Object.values(filledLetters).includes(letter);
             const isWrongPicked = submitted && !isCorrect &&
               Object.values(filledLetters).includes(letter) &&
               !currentQ.correctAnswers.includes(letter);
-            let cls = "bg-white border-2 border-red-200 text-red-700 hover:bg-red-50 hover:border-red-400";
+            let cls = "bg-white border-2 border-red-200 text-red-700 active:bg-red-50";
             if (submitted && isCorrectAnswer)
-              cls = "bg-green-100 border-2 border-green-400 text-green-700 scale-110";
+              cls = "bg-green-100 border-2 border-green-400 text-green-700 scale-105";
             else if (submitted && isWrongPicked)
               cls = "bg-red-100 border-2 border-red-300 text-red-400 opacity-60";
             else if (submitted)
@@ -183,7 +196,7 @@ export function MissingLetter({ difficulty }: Props) {
               key={letter}
               onClick={() => handleLetterPick(letter)}
               disabled={submitted}
-              className={`w-12 h-12 rounded-xl font-black text-xl uppercase active:scale-95 transition-all ${cls}`}
+              className={`w-10 h-10 rounded-lg font-black text-lg uppercase active:scale-95 transition-all ${cls}`}
               whileTap={{ scale: 0.92 }}
             >
               {letter}
@@ -192,11 +205,11 @@ export function MissingLetter({ difficulty }: Props) {
           })}
         </div>
 
-        {/* Feedback */}
+        {/* Feedback - more compact */}
         <AnimatePresence>
           {submitted && (
             <motion.div
-              className={`px-6 py-3 rounded-2xl font-bold text-white text-center ${isCorrect ? "bg-green-500" : "bg-red-400"}`}
+              className={`px-4 py-2 rounded-xl font-bold text-white text-center text-sm ${isCorrect ? "bg-green-500" : "bg-red-400"}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}

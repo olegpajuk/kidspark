@@ -32,57 +32,57 @@ export default function AdventurePage() {
   const { activeChild } = useChildStore();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 pb-20">
-      {/* Header */}
-      <div className="px-4 py-4 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 pb-24 overflow-y-auto">
+      {/* Header - more compact */}
+      <div className="px-3 py-3 text-white">
         <div className="max-w-xl mx-auto">
           <button
             onClick={() => router.push("/home")}
-            className="flex items-center gap-1 text-white/70 hover:text-white mb-4 text-sm"
+            className="flex items-center gap-1 text-white/70 mb-2 text-xs"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
             Back
           </button>
           
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2">Adventure Mode</h1>
-            <p className="text-white/80 text-sm">
-              Complete missions from different subjects to earn special rewards!
+            <h1 className="text-2xl font-bold mb-1">Adventure Mode</h1>
+            <p className="text-white/80 text-xs">
+              Complete missions to earn special rewards!
             </p>
           </div>
         </div>
       </div>
 
       {/* Journey Map */}
-      <div className="max-w-xl mx-auto px-4 mt-6">
-        {/* Current progress */}
+      <div className="max-w-xl mx-auto px-3 mt-3">
+        {/* Current progress - more compact */}
         <motion.div
-          className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 mb-8 text-white"
+          className="bg-white/20 backdrop-blur-sm rounded-xl p-3 mb-5 text-white"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/80">Current Mission</p>
-              <p className="font-bold text-lg">1. First Steps</p>
+              <p className="text-[10px] text-white/80">Current Mission</p>
+              <p className="font-bold text-sm">1. First Steps</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-white/80">Progress</p>
-              <p className="font-bold text-lg">0 / 8</p>
+              <p className="text-[10px] text-white/80">Progress</p>
+              <p className="font-bold text-sm">0 / 8</p>
             </div>
           </div>
-          <div className="mt-3 h-2 bg-white/30 rounded-full overflow-hidden">
+          <div className="mt-2 h-1.5 bg-white/30 rounded-full overflow-hidden">
             <div className="h-full bg-white/80 rounded-full" style={{ width: "0%" }} />
           </div>
         </motion.div>
 
-        {/* Mission Trail */}
+        {/* Mission Trail - more compact */}
         <div className="relative">
           {/* Connecting line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/20 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/20 -translate-x-1/2" />
 
           {/* Missions */}
-          <div className="relative space-y-6">
+          <div className="relative space-y-4">
             {JOURNEY_MISSIONS.map((mission, index) => (
               <motion.div
                 key={mission.id}
@@ -96,7 +96,7 @@ export default function AdventurePage() {
                 {/* Mission node on the line */}
                 <div className="absolute left-1/2 -translate-x-1/2 z-10">
                   <div
-                    className={`w-8 h-8 rounded-full border-4 border-white flex items-center justify-center text-sm ${
+                    className={`w-6 h-6 rounded-full border-3 border-white flex items-center justify-center text-xs font-bold ${
                       mission.isCompleted
                         ? "bg-green-400"
                         : mission.isCurrent
@@ -108,34 +108,34 @@ export default function AdventurePage() {
                   </div>
                 </div>
 
-                {/* Mission card */}
+                {/* Mission card - more compact */}
                 <div
-                  className={`w-[45%] ${
+                  className={`w-[44%] ${
                     mission.isUnlocked
                       ? "bg-white"
                       : "bg-white/50"
-                  } rounded-xl p-4 shadow-lg ${
-                    mission.isCurrent ? "ring-2 ring-yellow-400 ring-offset-2" : ""
+                  } rounded-lg p-2.5 shadow-md ${
+                    mission.isCurrent ? "ring-2 ring-yellow-400 ring-offset-1" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0"
                       style={{ 
                         backgroundColor: mission.isUnlocked 
                           ? `${mission.color}20` 
                           : "#f1f1f1"
                       }}
                     >
-                      {mission.isUnlocked ? mission.emoji : <Lock className="w-5 h-5 text-gray-400" />}
+                      {mission.isUnlocked ? mission.emoji : <Lock className="w-4 h-4 text-gray-400" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`font-bold text-sm ${
+                      <p className={`font-bold text-xs truncate ${
                         mission.isUnlocked ? "text-gray-800" : "text-gray-400"
                       }`}>
                         {mission.title}
                       </p>
-                      <p className="text-xs text-gray-500 capitalize">
+                      <p className="text-[10px] text-gray-500 capitalize">
                         {mission.subject}
                       </p>
                     </div>
@@ -148,7 +148,7 @@ export default function AdventurePage() {
                           router.push("/games/maths");
                         }
                       }}
-                      className="mt-3 w-full py-2 rounded-lg text-white text-sm font-semibold"
+                      className="mt-2 w-full py-1.5 rounded-md text-white text-xs font-semibold"
                       style={{ backgroundColor: mission.color }}
                     >
                       Start Mission
@@ -160,17 +160,17 @@ export default function AdventurePage() {
           </div>
         </div>
 
-        {/* Coming Soon notice */}
+        {/* Coming Soon notice - more compact */}
         <motion.div
-          className="mt-12 bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center text-white"
+          className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center text-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <p className="text-4xl mb-3">🚀</p>
-          <h3 className="font-bold text-lg mb-2">More Adventures Coming!</h3>
-          <p className="text-sm text-white/80">
-            Complete missions to unlock new challenges and earn special badges!
+          <p className="text-3xl mb-2">🚀</p>
+          <h3 className="font-bold text-sm mb-1">More Adventures Coming!</h3>
+          <p className="text-xs text-white/80">
+            Complete missions to unlock new challenges!
           </p>
         </motion.div>
       </div>

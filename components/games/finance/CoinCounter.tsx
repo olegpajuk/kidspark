@@ -18,8 +18,15 @@ import type { DifficultyTier } from "@/types/game";
 
 const QUESTIONS_PER_ROUND = 8;
 
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
+}
+
 interface Props {
   difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
 }
 
 interface SelectedItem {
@@ -29,7 +36,7 @@ interface SelectedItem {
   instanceId: string;
 }
 
-export function CoinCounter({ difficulty }: Props) {
+export function CoinCounter({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { playSound } = useAudio();
 
@@ -113,7 +120,14 @@ export function CoinCounter({ difficulty }: Props) {
 
     setTimeout(() => {
       if (round + 1 >= QUESTIONS_PER_ROUND) {
+        const finalCorrect = isMatch ? totalCorrect + 1 : totalCorrect;
+        const finalStars = finalCorrect >= QUESTIONS_PER_ROUND * 0.9 ? 3 : finalCorrect >= QUESTIONS_PER_ROUND * 0.6 ? 2 : 1;
         setIsComplete(true);
+        onComplete?.({
+          correct: finalCorrect,
+          total: QUESTIONS_PER_ROUND,
+          stars: finalStars as 0 | 1 | 2 | 3,
+        });
       } else {
         setRound((r) => r + 1);
         nextQuestion();
@@ -165,12 +179,12 @@ export function CoinCounter({ difficulty }: Props) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col p-4 overflow-y-auto">
-        {/* Target Amount */}
-        <div className="text-center mb-4">
-          <p className="text-gray-500 text-sm mb-1">Make this amount:</p>
+      <div className="flex-1 flex flex-col p-3 overflow-y-auto">
+        {/* Target Amount - more compact */}
+        <div className="text-center mb-3">
+          <p className="text-gray-500 text-xs mb-0.5">Make this amount:</p>
           <motion.div
-            className="text-5xl font-black text-gray-800"
+            className="text-4xl font-black text-gray-800"
             key={question.targetAmount}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -180,21 +194,21 @@ export function CoinCounter({ difficulty }: Props) {
           </motion.div>
         </div>
 
-        {/* Current Total Display */}
-        <div className="bg-white rounded-2xl p-4 mb-4 shadow-sm border-2 border-yellow-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-500 text-sm">Your total:</span>
+        {/* Current Total Display - more compact */}
+        <div className="bg-white rounded-xl p-3 mb-3 shadow-sm border-2 border-yellow-200">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-gray-500 text-xs">Your total:</span>
             <button
               onClick={handleClear}
               disabled={selectedItems.length === 0 || isCorrect !== null}
-              className="text-xs text-gray-400 hover:text-gray-600 disabled:opacity-30 flex items-center gap-1"
+              className="text-[10px] text-gray-400 disabled:opacity-30 flex items-center gap-0.5"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-2.5 h-2.5" />
               Clear
             </button>
           </div>
           <motion.div
-            className={`text-3xl font-bold text-center ${
+            className={`text-2xl font-bold text-center ${
               isExactMatch
                 ? "text-green-500"
                 : isOverTarget
@@ -206,8 +220,8 @@ export function CoinCounter({ difficulty }: Props) {
             {formatMoneyShort(roundedTotal)}
           </motion.div>
           
-          {/* Selected items visual */}
-          <div className="flex flex-wrap gap-1 mt-3 min-h-[40px] justify-center">
+          {/* Selected items visual - smaller */}
+          <div className="flex flex-wrap gap-0.5 mt-2 min-h-[32px] justify-center">
             <AnimatePresence mode="popLayout">
               {selectedItems.map((item) => {
                 const coinData = COINS.find((c) => c.id === item.id);
@@ -218,11 +232,11 @@ export function CoinCounter({ difficulty }: Props) {
                   <motion.button
                     key={item.instanceId}
                     onClick={() => handleRemoveItem(item.instanceId)}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-sm hover:scale-110 transition-transform"
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold shadow-sm active:scale-90 transition-transform"
                     style={{
                       backgroundColor: data?.bgColor || "#EEE",
                       color: data?.color || "#333",
-                      border: `2px solid ${data?.color || "#CCC"}`,
+                      border: `1.5px solid ${data?.color || "#CCC"}`,
                     }}
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -235,7 +249,7 @@ export function CoinCounter({ difficulty }: Props) {
               })}
             </AnimatePresence>
             {selectedItems.length === 0 && (
-              <p className="text-gray-300 text-xs">Tap coins below to add</p>
+              <p className="text-gray-300 text-[10px]">Tap coins below to add</p>
             )}
           </div>
         </div>
@@ -243,66 +257,66 @@ export function CoinCounter({ difficulty }: Props) {
         {/* Hint */}
         {showHint && (
           <motion.div
-            className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4"
+            className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-sm text-blue-700">
-              💡 Tip: Start with the largest coins/bills first, then add smaller ones!
+            <p className="text-xs text-blue-700">
+              💡 Tip: Start with the largest coins/bills first!
             </p>
           </motion.div>
         )}
 
-        {/* Coins & Bills Selection */}
-        <div className="space-y-4">
+        {/* Coins & Bills Selection - more compact */}
+        <div className="space-y-3">
           {/* Bills */}
           {question.availableBills.length > 0 && (
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">
                 Notes
               </p>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1.5 flex-wrap">
                 {question.availableBills.map((bill) => (
                   <motion.button
                     key={bill.id}
                     onClick={() => handleAddBill(bill)}
                     disabled={isCorrect !== null}
-                    className="px-4 py-3 rounded-xl font-bold text-white shadow-md disabled:opacity-50 hover:scale-105 active:scale-95 transition-transform"
+                    className="px-3 py-2 rounded-lg font-bold text-white shadow-sm disabled:opacity-50 active:scale-95 transition-transform text-xs"
                     style={{ backgroundColor: bill.color }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <span className="text-lg">{bill.emoji}</span>
-                    <span className="ml-2">{bill.name}</span>
+                    <span className="text-sm">{bill.emoji}</span>
+                    <span className="ml-1">{bill.name}</span>
                   </motion.button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Coins */}
+          {/* Coins - smaller but still touchable */}
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">
               Coins
             </p>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1.5 flex-wrap">
               {question.availableCoins.map((coin) => (
                 <motion.button
                   key={coin.id}
                   onClick={() => handleAddCoin(coin)}
                   disabled={isCorrect !== null}
-                  className={`rounded-full font-bold shadow-md disabled:opacity-50 hover:scale-105 active:scale-95 transition-transform flex items-center justify-center ${
+                  className={`rounded-full font-bold shadow-sm disabled:opacity-50 active:scale-90 transition-transform flex items-center justify-center ${
                     coin.size === "small"
-                      ? "w-12 h-12 text-xs"
+                      ? "w-10 h-10 text-[10px]"
                       : coin.size === "medium"
-                      ? "w-14 h-14 text-sm"
-                      : "w-16 h-16 text-base"
+                      ? "w-11 h-11 text-[11px]"
+                      : "w-12 h-12 text-xs"
                   }`}
                   style={{
                     backgroundColor: coin.bgColor,
                     color: coin.color,
-                    border: `3px solid ${coin.color}`,
+                    border: `2px solid ${coin.color}`,
                   }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   {coin.name}
                 </motion.button>
@@ -312,11 +326,11 @@ export function CoinCounter({ difficulty }: Props) {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-auto pt-4 space-y-3">
+        <div className="mt-auto pt-3 space-y-2">
           {!showHint && isCorrect === null && (
             <button
               onClick={() => setShowHint(true)}
-              className="w-full py-2 text-sm text-gray-400 hover:text-gray-600"
+              className="w-full py-1.5 text-xs text-gray-400"
             >
               Need a hint?
             </button>
@@ -326,7 +340,7 @@ export function CoinCounter({ difficulty }: Props) {
             <button
               onClick={handleCheck}
               disabled={selectedItems.length === 0}
-              className="w-full py-4 rounded-2xl bg-[#FFB800] text-white font-bold text-lg disabled:opacity-40 hover:opacity-90 transition-all active:scale-[0.98]"
+              className="w-full py-3 rounded-xl bg-[#FFB800] text-white font-bold text-sm disabled:opacity-40 active:scale-[0.98]"
             >
               Check Answer
             </button>
@@ -336,7 +350,7 @@ export function CoinCounter({ difficulty }: Props) {
           <AnimatePresence>
             {isCorrect !== null && (
               <motion.div
-                className={`py-4 rounded-2xl font-bold text-white text-center text-lg ${
+                className={`py-3 rounded-xl font-bold text-white text-center text-sm ${
                   isCorrect ? "bg-green-500" : "bg-red-400"
                 }`}
                 initial={{ opacity: 0, scale: 0.9 }}

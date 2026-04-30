@@ -77,3 +77,60 @@ export function subscribeToChildren(
     callback(children);
   });
 }
+
+export async function resetChildStats(
+  parentUid: string,
+  childId: string,
+  options: {
+    resetStars?: boolean;
+    resetXP?: boolean;
+    resetLevels?: boolean;
+    subjects?: SubjectId[];
+  } = {}
+): Promise<void> {
+  const db = getClientDb();
+  const childRef = doc(db, "users", parentUid, "children", childId);
+  
+  const { resetStars = true, resetXP = true, resetLevels = true, subjects } = options;
+  const subjectsToReset = subjects ?? ALL_SUBJECTS;
+  
+  const updates: Record<string, unknown> = {
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (resetStars) {
+    updates.starBalance = 0;
+    updates.totalStarsEarned = 0;
+  }
+
+  if (resetXP || resetLevels) {
+    for (const subject of subjectsToReset) {
+      if (resetXP) {
+        updates[`levels.${subject}.xp`] = 0;
+      }
+      if (resetLevels) {
+        updates[`levels.${subject}.level`] = 1;
+        updates[`levels.${subject}.adaptiveDifficulty`] = 1;
+      }
+    }
+  }
+
+  const { updateDoc } = await import("firebase/firestore");
+  await updateDoc(childRef, updates);
+}
+
+export async function getChild(
+  parentUid: string,
+  childId: string
+): Promise<Child | null> {
+  const db = getClientDb();
+  const { getDoc } = await import("firebase/firestore");
+  const childRef = doc(db, "users", parentUid, "children", childId);
+  const snap = await getDoc(childRef);
+  
+  if (!snap.exists()) {
+    return null;
+  }
+  
+  return { id: snap.id, ...snap.data() } as Child;
+}

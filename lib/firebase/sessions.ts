@@ -11,7 +11,7 @@ import {
   getDocs,
   Timestamp,
 } from "firebase/firestore";
-import { db } from "./config";
+import { getClientDb } from "./config";
 import type { GameSession, QuestionResult, SessionStatus } from "@/types/progress";
 import type { GameId, DifficultyTier } from "@/types/game";
 import type { SubjectId } from "@/types/child";
@@ -33,10 +33,12 @@ export interface UpdateSessionInput {
 }
 
 function sessionsRef(parentUid: string, childId: string) {
+  const db = getClientDb();
   return collection(db, "users", parentUid, "children", childId, "sessions");
 }
 
 function sessionDoc(parentUid: string, childId: string, sessionId: string) {
+  const db = getClientDb();
   return doc(db, "users", parentUid, "children", childId, "sessions", sessionId);
 }
 

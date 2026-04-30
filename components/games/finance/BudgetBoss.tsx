@@ -14,11 +14,18 @@ import {
 } from "@/lib/data/finance/budget-boss";
 import type { DifficultyTier } from "@/types/game";
 
-interface Props {
-  difficulty: DifficultyTier;
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
 }
 
-export function BudgetBoss({ difficulty }: Props) {
+interface Props {
+  difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
+}
+
+export function BudgetBoss({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { playSound } = useAudio();
 
@@ -109,6 +116,14 @@ export function BudgetBoss({ difficulty }: Props) {
     if (game.currentEvent + 1 >= game.events.length) {
       setGame({ ...game, phase: "complete" });
       playSound("fanfare");
+      const successCount = game.results.filter((r) => r.success).length;
+      const totalEvents = game.events.length;
+      const finalStars = successCount >= totalEvents * 0.9 ? 3 : successCount >= totalEvents * 0.6 ? 2 : 1;
+      onComplete?.({
+        correct: successCount,
+        total: totalEvents,
+        stars: finalStars as 0 | 1 | 2 | 3,
+      });
     } else {
       setGame({ ...game, currentEvent: game.currentEvent + 1 });
     }
@@ -166,11 +181,11 @@ export function BudgetBoss({ difficulty }: Props) {
               </div>
 
               {/* Remaining indicator */}
-              <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+              <div className="bg-white rounded-lg p-3 mb-3 shadow-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Left to allocate:</span>
+                  <span className="text-gray-600 text-sm">Left to allocate:</span>
                   <span
-                    className={`text-2xl font-black ${
+                    className={`text-xl font-black ${
                       getRemaining() === 0
                         ? "text-green-500"
                         : getRemaining() < 0
@@ -181,7 +196,7 @@ export function BudgetBoss({ difficulty }: Props) {
                     £{getRemaining()}
                   </span>
                 </div>
-                <div className="mt-2 h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div className="mt-1.5 h-2 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-green-500 rounded-full"
                     animate={{
@@ -192,7 +207,7 @@ export function BudgetBoss({ difficulty }: Props) {
               </div>
 
               {/* Categories */}
-              <div className="space-y-3 mb-4">
+              <div className="space-y-2 mb-3">
                 {BUDGET_CATEGORIES.map((category) => {
                   const allocated = game.allocations[category.id] || 0;
                   const percent =
@@ -203,42 +218,42 @@ export function BudgetBoss({ difficulty }: Props) {
                   return (
                     <div
                       key={category.id}
-                      className="bg-white rounded-xl p-4 shadow-sm"
-                      style={{ borderLeft: `4px solid ${category.color}` }}
+                      className="bg-white rounded-lg p-2.5 shadow-sm"
+                      style={{ borderLeft: `3px solid ${category.color}` }}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{category.emoji}</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-lg">{category.emoji}</span>
                           <div>
-                            <p className="font-bold text-gray-800 text-sm">
+                            <p className="font-bold text-gray-800 text-xs">
                               {category.name}
                             </p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-[10px] text-gray-400">
                               {category.description}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p
-                            className="text-xl font-black"
+                            className="text-base font-black"
                             style={{ color: category.color }}
                           >
                             £{allocated}
                           </p>
-                          <p className="text-xs text-gray-400">{percent}%</p>
+                          <p className="text-[10px] text-gray-400">{percent}%</p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleAdjustAllocation(category.id, -5)}
                           disabled={allocated < 5}
-                          className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-30 hover:bg-gray-200"
+                          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-30 hover:bg-gray-200"
                         >
-                          <Minus className="w-5 h-5" />
+                          <Minus className="w-4 h-4" />
                         </button>
 
-                        <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                           <motion.div
                             className="h-full rounded-full"
                             style={{ backgroundColor: category.color }}
@@ -249,10 +264,10 @@ export function BudgetBoss({ difficulty }: Props) {
                         <button
                           onClick={() => handleAdjustAllocation(category.id, 5)}
                           disabled={getRemaining() < 5}
-                          className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-30 hover:opacity-80"
+                          className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-30 hover:opacity-80"
                           style={{ backgroundColor: category.bgColor }}
                         >
-                          <Plus className="w-5 h-5" style={{ color: category.color }} />
+                          <Plus className="w-4 h-4" style={{ color: category.color }} />
                         </button>
                       </div>
                     </div>
@@ -263,7 +278,7 @@ export function BudgetBoss({ difficulty }: Props) {
               <button
                 onClick={handleConfirmBudget}
                 disabled={getRemaining() !== 0}
-                className="w-full py-4 bg-[#2ECC71] text-white font-bold rounded-2xl text-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
+                className="w-full py-3 bg-[#2ECC71] text-white font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
               >
                 {getRemaining() === 0
                   ? "Start the Week! →"
@@ -281,38 +296,38 @@ export function BudgetBoss({ difficulty }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
             >
-              <div className="text-center mb-6">
-                <p className="text-sm text-gray-500 mb-2">
+              <div className="text-center mb-4">
+                <p className="text-xs text-gray-500 mb-1">
                   Event {game.currentEvent + 1} of {game.events.length}
                 </p>
                 <motion.div
-                  className="text-6xl mb-4"
+                  className="text-5xl mb-3"
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 0.5 }}
                 >
                   {currentEvent.emoji}
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                <h3 className="text-lg font-bold text-gray-800 mb-1">
                   {currentEvent.title}
                 </h3>
-                <p className="text-gray-500">{currentEvent.description}</p>
+                <p className="text-gray-500 text-sm">{currentEvent.description}</p>
               </div>
 
-              <div className="bg-white rounded-xl p-4 mb-6 w-full max-w-sm">
-                <div className="flex justify-between items-center mb-2">
+              <div className="bg-white rounded-lg p-3 mb-4 w-full max-w-sm">
+                <div className="flex justify-between items-center mb-1.5 text-sm">
                   <span className="text-gray-600">Cost:</span>
-                  <span className="font-bold text-lg">
+                  <span className="font-bold">
                     £{currentEvent.cost}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">
                     {BUDGET_CATEGORIES.find((c) => c.id === currentEvent.category)
                       ?.name || "Category"}{" "}
                     Budget:
                   </span>
                   <span
-                    className={`font-bold text-lg ${
+                    className={`font-bold ${
                       canAffordCurrentEvent ? "text-green-500" : "text-red-500"
                     }`}
                   >
@@ -320,24 +335,24 @@ export function BudgetBoss({ difficulty }: Props) {
                   </span>
                 </div>
                 {!canAffordCurrentEvent && (
-                  <p className="text-xs text-red-500 mt-2">
+                  <p className="text-[10px] text-red-500 mt-1.5">
                     ⚠️ Not enough in this category!
                   </p>
                 )}
               </div>
 
               {currentEvent.isOptional ? (
-                <div className="flex gap-3 w-full max-w-sm">
+                <div className="flex gap-2 w-full max-w-sm">
                   <button
                     onClick={() => handleEventChoice(false)}
-                    className="flex-1 py-4 bg-gray-200 text-gray-700 font-bold rounded-2xl hover:bg-gray-300"
+                    className="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-300"
                   >
                     Skip
                   </button>
                   <button
                     onClick={() => handleEventChoice(true)}
                     disabled={!canAffordCurrentEvent}
-                    className="flex-1 py-4 bg-[#2ECC71] text-white font-bold rounded-2xl hover:opacity-90 disabled:opacity-40"
+                    className="flex-1 py-3 bg-[#2ECC71] text-white font-bold rounded-xl text-sm hover:opacity-90 disabled:opacity-40"
                   >
                     {canAffordCurrentEvent ? "Pay £" + currentEvent.cost : "Can't Afford"}
                   </button>
@@ -345,7 +360,7 @@ export function BudgetBoss({ difficulty }: Props) {
               ) : (
                 <button
                   onClick={() => handleEventChoice(true)}
-                  className={`w-full max-w-sm py-4 font-bold rounded-2xl ${
+                  className={`w-full max-w-sm py-3 font-bold rounded-xl text-sm ${
                     canAffordCurrentEvent
                       ? "bg-[#2ECC71] text-white hover:opacity-90"
                       : "bg-red-400 text-white"
@@ -367,17 +382,17 @@ export function BudgetBoss({ difficulty }: Props) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="text-6xl mb-4">
+              <div className="text-5xl mb-3">
                 {lastEventSuccess ? "✅" : "❌"}
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
+              <h3 className="text-lg font-bold text-gray-800 mb-2">
                 {lastEventSuccess
                   ? currentEvent.positiveOutcome
                   : currentEvent.negativeOutcome}
               </h3>
 
               {lastEventSuccess && currentEvent.cost > 0 && (
-                <p className="text-gray-500 mb-4">
+                <p className="text-gray-500 text-sm mb-3">
                   Spent £{currentEvent.cost} from{" "}
                   {BUDGET_CATEGORIES.find((c) => c.id === currentEvent.category)
                     ?.name}
@@ -386,7 +401,7 @@ export function BudgetBoss({ difficulty }: Props) {
 
               <button
                 onClick={handleNextEvent}
-                className="px-8 py-4 bg-[#2ECC71] text-white font-bold rounded-2xl text-lg hover:opacity-90 active:scale-95"
+                className="px-6 py-3 bg-[#2ECC71] text-white font-bold rounded-xl text-sm hover:opacity-90 active:scale-95"
               >
                 {game.currentEvent + 1 >= game.events.length
                   ? "See Results"
@@ -401,36 +416,36 @@ export function BudgetBoss({ difficulty }: Props) {
       <AnimatePresence>
         {game.phase === "complete" && (
           <motion.div
-            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <motion.div
-              className="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl"
+              className="bg-white rounded-2xl p-4 w-full max-w-sm text-center shadow-2xl"
               initial={{ scale: 0.8, y: 40 }}
               animate={{ scale: 1, y: 0 }}
             >
-              <div className="text-6xl mb-3">
+              <div className="text-5xl mb-2">
                 {stars === 3 ? "🏆" : stars === 2 ? "📊" : "📚"}
               </div>
-              <h2 className="text-xl font-black text-gray-800 mb-2">
+              <h2 className="text-lg font-black text-gray-800 mb-2">
                 Week Complete!
               </h2>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-4 text-sm">
-                <div className="flex justify-between mb-2">
+              <div className="bg-gray-50 rounded-lg p-3 mb-3 text-xs">
+                <div className="flex justify-between mb-1.5">
                   <span className="text-gray-600">Events Handled:</span>
                   <span className="font-bold">
                     {successCount}/{totalEvents}
                   </span>
                 </div>
-                <div className="border-t pt-2 mt-2">
-                  <p className="text-xs text-gray-500 mb-2">Money Left:</p>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="border-t pt-1.5 mt-1.5">
+                  <p className="text-[10px] text-gray-500 mb-1.5">Money Left:</p>
+                  <div className="grid grid-cols-2 gap-1.5">
                     {BUDGET_CATEGORIES.map((cat) => (
                       <div key={cat.id} className="flex items-center gap-1">
-                        <span>{cat.emoji}</span>
-                        <span className="text-xs font-bold">
+                        <span className="text-sm">{cat.emoji}</span>
+                        <span className="text-[10px] font-bold">
                           £{game.allocations[cat.id]}
                         </span>
                       </div>
@@ -439,7 +454,7 @@ export function BudgetBoss({ difficulty }: Props) {
                 </div>
               </div>
 
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-xs text-gray-500 mb-3">
                 {stars === 3
                   ? "Amazing budgeting! You handled everything!"
                   : stars === 2
@@ -447,28 +462,28 @@ export function BudgetBoss({ difficulty }: Props) {
                   : "Keep practicing! Planning ahead helps!"}
               </p>
 
-              <div className="flex justify-center gap-2 mb-4">
+              <div className="flex justify-center gap-1.5 mb-3">
                 {[1, 2, 3].map((s) => (
                   <span
                     key={s}
-                    className={`text-2xl ${s <= stars ? "opacity-100" : "opacity-20"}`}
+                    className={`text-xl ${s <= stars ? "opacity-100" : "opacity-20"}`}
                   >
                     ⭐
                   </span>
                 ))}
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={initGame}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-green-100 text-green-700 font-bold hover:bg-green-200"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-green-100 text-green-700 font-bold text-sm hover:bg-green-200"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3.5 h-3.5" />
                   Again
                 </button>
                 <button
                   onClick={() => router.push("/games/finance")}
-                  className="flex-1 py-3 rounded-xl bg-[#2ECC71] text-white font-bold hover:opacity-90"
+                  className="flex-1 py-2.5 rounded-lg bg-[#2ECC71] text-white font-bold text-sm hover:opacity-90"
                 >
                   Back
                 </button>

@@ -127,17 +127,17 @@ export function WordMatchMemory({ difficulty }: Props) {
         <div className="text-sm font-bold">{formatTime(elapsed)}</div>
       </div>
 
-      {/* Stats bar */}
-      <div className="bg-teal-50 px-4 py-2 flex justify-between text-sm">
+      {/* Stats bar - more compact */}
+      <div className="bg-teal-50 px-3 py-1.5 flex justify-between text-xs">
         <span className="text-teal-700">Pairs: <strong>{matchedPairs}/{totalPairs}</strong></span>
         <span className="text-teal-700">Moves: <strong>{moves}</strong></span>
       </div>
 
-      {/* Card grid */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      {/* Card grid - more compact */}
+      <div className="flex-1 flex items-center justify-center p-2">
         <div className="w-full max-w-sm">
           <div
-            className="grid gap-2"
+            className="grid gap-1.5"
             style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
           >
             {cards.map((card) => (
@@ -207,7 +207,7 @@ function CardTile({ card, onTap, isChecking }: CardTileProps) {
     <button
       onClick={() => onTap(card.id)}
       disabled={disabled && !card.isMatched}
-      className="relative w-full rounded-xl overflow-hidden focus:outline-none"
+      className="relative w-full rounded-lg overflow-hidden focus:outline-none"
       style={{ aspectRatio: "1" }}
     >
       <AnimatePresence initial={false}>
@@ -215,20 +215,20 @@ function CardTile({ card, onTap, isChecking }: CardTileProps) {
           /* Card back — hidden face */
           <motion.div
             key="back"
-            className="absolute inset-0 rounded-xl flex items-center justify-center"
+            className="absolute inset-0 rounded-lg flex items-center justify-center"
             style={{ backgroundColor: "#4ECDC4" }}
             initial={{ rotateY: -90, opacity: 0 }}
             animate={{ rotateY: 0, opacity: 1 }}
             exit={{ rotateY: 90, opacity: 0 }}
             transition={{ duration: 0.22 }}
           >
-            <span className="text-white font-black text-2xl select-none">?</span>
+            <span className="text-white font-black text-lg select-none">?</span>
           </motion.div>
         ) : (
           /* Card front — revealed */
           <motion.div
             key="front"
-            className={`absolute inset-0 rounded-xl flex items-center justify-center p-1 ${
+            className={`absolute inset-0 rounded-lg flex items-center justify-center p-0.5 ${
               card.isMatched
                 ? "bg-green-100 border-2 border-green-400"
                 : "bg-white border-2 border-teal-300 shadow-sm"
@@ -239,9 +239,9 @@ function CardTile({ card, onTap, isChecking }: CardTileProps) {
             transition={{ duration: 0.22 }}
           >
             {card.type === "emoji" ? (
-              <span className="text-2xl select-none">{card.content}</span>
+              <span className="text-xl select-none">{card.content}</span>
             ) : (
-              <span className="text-[10px] font-black text-gray-700 uppercase text-center leading-tight break-all select-none px-0.5">
+              <span className="text-[9px] font-black text-gray-700 uppercase text-center leading-tight break-all select-none px-0.5">
                 {card.content}
               </span>
             )}

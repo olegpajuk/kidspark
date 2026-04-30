@@ -226,28 +226,28 @@ export function LemonadeStand({ difficulty }: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="text-8xl mb-4">🍋</div>
-              <h2 className="text-2xl font-black text-gray-800 mb-2">
+              <div className="text-6xl mb-3">🍋</div>
+              <h2 className="text-xl font-black text-gray-800 mb-1">
                 Run Your Lemonade Stand!
               </h2>
-              <p className="text-gray-500 mb-2">
+              <p className="text-gray-500 text-sm mb-2">
                 Buy supplies, set prices, and make profit!
               </p>
-              <div className="bg-white rounded-xl p-4 mb-6 text-left w-full max-w-sm">
-                <p className="text-sm text-gray-600 mb-2">💡 Remember:</p>
-                <ul className="text-xs text-gray-500 space-y-1">
+              <div className="bg-white rounded-xl p-3 mb-4 text-left w-full max-w-sm">
+                <p className="text-xs text-gray-600 mb-1">💡 Remember:</p>
+                <ul className="text-[10px] text-gray-500 space-y-0.5">
                   <li>• <strong>Profit = Revenue - Costs</strong></li>
                   <li>• Hot weather = More customers!</li>
                   <li>• Lower prices = More sales</li>
                   <li>• Don&apos;t run out of supplies!</li>
                 </ul>
               </div>
-              <p className="text-lg font-bold text-yellow-600 mb-4">
+              <p className="text-sm font-bold text-yellow-600 mb-3">
                 Starting cash: £{game.cash.toFixed(2)}
               </p>
               <button
                 onClick={handleStartDay}
-                className="px-8 py-4 bg-[#FFE135] text-gray-800 font-bold rounded-2xl text-lg hover:opacity-90 active:scale-95 transition-all shadow-lg"
+                className="px-6 py-3 bg-[#FFE135] text-gray-800 font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all shadow-lg"
               >
                 Start Day 1! 🚀
               </button>
@@ -268,7 +268,7 @@ export function LemonadeStand({ difficulty }: Props) {
                 Buy Supplies
               </h3>
 
-              <div className="space-y-3 mb-4">
+              <div className="space-y-2 mb-3">
                 {SUPPLIES.map((supply) => {
                   const cartQty = cart[supply.id] || 0;
                   const inventoryQty = game.inventory[supply.id] || 0;
@@ -276,31 +276,31 @@ export function LemonadeStand({ difficulty }: Props) {
                   return (
                     <div
                       key={supply.id}
-                      className="bg-white rounded-xl p-3 flex items-center gap-3"
+                      className="bg-white rounded-lg p-2 flex items-center gap-2"
                     >
-                      <div className="text-3xl">{supply.emoji}</div>
+                      <div className="text-2xl">{supply.emoji}</div>
                       <div className="flex-1">
-                        <p className="font-bold text-gray-800 text-sm">
+                        <p className="font-bold text-gray-800 text-xs">
                           {supply.name}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          £{supply.costPerUnit.toFixed(2)} each · Have: {inventoryQty}
+                        <p className="text-[10px] text-gray-500">
+                          £{supply.costPerUnit.toFixed(2)} · Have: {inventoryQty}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => handleRemoveFromCart(supply.id)}
                           disabled={cartQty === 0}
-                          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-30"
+                          className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-30"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-3.5 h-3.5" />
                         </button>
-                        <span className="w-6 text-center font-bold">{cartQty}</span>
+                        <span className="w-5 text-center font-bold text-sm">{cartQty}</span>
                         <button
                           onClick={() => handleAddToCart(supply.id)}
-                          className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center hover:bg-yellow-200"
+                          className="w-7 h-7 rounded-full bg-yellow-100 flex items-center justify-center hover:bg-yellow-200"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -308,12 +308,12 @@ export function LemonadeStand({ difficulty }: Props) {
                 })}
               </div>
 
-              <div className="bg-yellow-50 rounded-xl p-4 mb-4">
-                <div className="flex justify-between text-sm mb-1">
+              <div className="bg-yellow-50 rounded-lg p-3 mb-3">
+                <div className="flex justify-between text-xs mb-0.5">
                   <span className="text-gray-600">Cart Total:</span>
                   <span className="font-bold">£{getCartTotal().toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-gray-600">Cash After:</span>
                   <span className="font-bold text-green-600">
                     £{(game.cash - getCartTotal()).toFixed(2)}
@@ -323,7 +323,7 @@ export function LemonadeStand({ difficulty }: Props) {
 
               <button
                 onClick={handleBuySupplies}
-                className="w-full py-4 bg-[#FFE135] text-gray-800 font-bold rounded-2xl text-lg hover:opacity-90 active:scale-95 transition-all"
+                className="w-full py-3 bg-[#FFE135] text-gray-800 font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all"
               >
                 {getCartTotal() > 0 ? "Buy Supplies" : "Skip Buying"} →
               </button>
@@ -343,21 +343,21 @@ export function LemonadeStand({ difficulty }: Props) {
                 💰 Set Your Price
               </h3>
 
-              <div className="bg-white rounded-xl p-4 mb-4">
-                <p className="text-sm text-gray-500 mb-2">Cost to make one cup:</p>
-                <p className="text-2xl font-black text-gray-800">
+              <div className="bg-white rounded-lg p-3 mb-3">
+                <p className="text-xs text-gray-500 mb-1">Cost to make one cup:</p>
+                <p className="text-xl font-black text-gray-800">
                   £{costPerCup.toFixed(2)}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-[10px] text-gray-400 mt-0.5">
                   You can make up to <strong>{maxCups}</strong> cups
                 </p>
               </div>
 
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-xs text-gray-600 mb-2">
                 Pick your price per cup:
               </p>
 
-              <div className="grid grid-cols-4 gap-2 mb-4">
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
                 {PRICE_OPTIONS.map((price) => {
                   const profit = price - costPerCup;
                   const isSelected = selectedPrice === price;
@@ -366,17 +366,17 @@ export function LemonadeStand({ difficulty }: Props) {
                     <button
                       key={price}
                       onClick={() => setSelectedPrice(price)}
-                      className={`p-3 rounded-xl text-center transition-all ${
+                      className={`p-2 rounded-lg text-center transition-all ${
                         isSelected
                           ? "bg-yellow-400 ring-2 ring-yellow-600 scale-105"
                           : "bg-white hover:bg-yellow-50"
                       }`}
                     >
-                      <p className="font-bold text-gray-800">
+                      <p className="font-bold text-gray-800 text-xs">
                         £{price.toFixed(2)}
                       </p>
                       <p
-                        className={`text-xs ${
+                        className={`text-[10px] ${
                           profit > 0 ? "text-green-600" : "text-red-500"
                         }`}
                       >
@@ -387,17 +387,16 @@ export function LemonadeStand({ difficulty }: Props) {
                 })}
               </div>
 
-              <div className="bg-blue-50 rounded-xl p-3 mb-4">
-                <p className="text-xs text-blue-700">
+              <div className="bg-blue-50 rounded-lg p-2 mb-3">
+                <p className="text-[10px] text-blue-700">
                   💡 Lower prices attract more customers, but you earn less per cup.
-                  Weather affects demand too!
                 </p>
               </div>
 
               <button
                 onClick={handleSetPrice}
                 disabled={maxCups === 0}
-                className="w-full py-4 bg-[#FFE135] text-gray-800 font-bold rounded-2xl text-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
+                className="w-full py-3 bg-[#FFE135] text-gray-800 font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
               >
                 {maxCups === 0 ? "No Supplies!" : "Open Stand! 🍋"}
               </button>
@@ -412,15 +411,15 @@ export function LemonadeStand({ difficulty }: Props) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div className="text-6xl mb-4">🍋</div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
+              <div className="text-5xl mb-3">🍋</div>
+              <h3 className="text-lg font-bold text-gray-800 mb-3">
                 Selling Lemonade...
               </h3>
-              <div className="flex gap-1 flex-wrap justify-center max-w-xs">
+              <div className="flex gap-0.5 flex-wrap justify-center max-w-xs">
                 {Array.from({ length: soldAnimation }).map((_, i) => (
                   <motion.span
                     key={i}
-                    className="text-2xl"
+                    className="text-lg"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                   >
@@ -428,7 +427,7 @@ export function LemonadeStand({ difficulty }: Props) {
                   </motion.span>
                 ))}
               </div>
-              <p className="text-gray-500 mt-4">
+              <p className="text-gray-500 mt-3 text-sm">
                 {soldAnimation} cups sold so far...
               </p>
             </motion.div>
@@ -442,16 +441,16 @@ export function LemonadeStand({ difficulty }: Props) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="text-center mb-4">
-                <div className="text-5xl mb-2">
+              <div className="text-center mb-3">
+                <div className="text-4xl mb-1">
                   {currentDayResult.profit > 0 ? "🎉" : "😅"}
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">
+                <h3 className="text-lg font-bold text-gray-800">
                   Day {currentDayResult.day} Complete!
                 </h3>
               </div>
 
-              <div className="bg-white rounded-xl p-4 mb-4 space-y-3">
+              <div className="bg-white rounded-lg p-3 mb-3 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cups Sold:</span>
                   <span className="font-bold">{currentDayResult.cupsSold} 🥤</span>
@@ -474,7 +473,7 @@ export function LemonadeStand({ difficulty }: Props) {
                     -£{currentDayResult.supplyCost.toFixed(2)}
                   </span>
                 </div>
-                <div className="border-t pt-2 flex justify-between text-lg">
+                <div className="border-t pt-1.5 flex justify-between text-base">
                   <span className="font-bold">Profit:</span>
                   <span
                     className={`font-black ${
@@ -489,19 +488,19 @@ export function LemonadeStand({ difficulty }: Props) {
                 </div>
               </div>
 
-              <div className="flex gap-2 mb-4">
+              <div className="flex gap-2 mb-3">
                 {currentDayResult.customersHappy > 0 && (
-                  <div className="flex-1 bg-green-50 rounded-xl p-3 text-center">
-                    <p className="text-2xl">😊</p>
-                    <p className="text-xs text-gray-600">
+                  <div className="flex-1 bg-green-50 rounded-lg p-2 text-center">
+                    <p className="text-xl">😊</p>
+                    <p className="text-[10px] text-gray-600">
                       {currentDayResult.customersHappy} happy
                     </p>
                   </div>
                 )}
                 {currentDayResult.customersSad > 0 && (
-                  <div className="flex-1 bg-red-50 rounded-xl p-3 text-center">
-                    <p className="text-2xl">😢</p>
-                    <p className="text-xs text-gray-600">
+                  <div className="flex-1 bg-red-50 rounded-lg p-2 text-center">
+                    <p className="text-xl">😢</p>
+                    <p className="text-[10px] text-gray-600">
                       {currentDayResult.customersSad} turned away
                     </p>
                   </div>
@@ -510,7 +509,7 @@ export function LemonadeStand({ difficulty }: Props) {
 
               <button
                 onClick={handleNextDay}
-                className="w-full py-4 bg-[#FFE135] text-gray-800 font-bold rounded-2xl text-lg hover:opacity-90 active:scale-95 transition-all"
+                className="w-full py-3 bg-[#FFE135] text-gray-800 font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all"
               >
                 {game.day >= game.totalDays ? "See Final Results" : "Next Day →"}
               </button>
@@ -523,32 +522,32 @@ export function LemonadeStand({ difficulty }: Props) {
       <AnimatePresence>
         {phase === "complete" && (
           <motion.div
-            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <motion.div
-              className="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl"
+              className="bg-white rounded-2xl p-4 w-full max-w-sm text-center shadow-2xl"
               initial={{ scale: 0.8, y: 40 }}
               animate={{ scale: 1, y: 0 }}
             >
-              <div className="text-6xl mb-3">
+              <div className="text-5xl mb-2">
                 {stars === 3 ? "🏆" : stars === 2 ? "🍋" : stars === 1 ? "👍" : "📚"}
               </div>
-              <h2 className="text-xl font-black text-gray-800 mb-2">
+              <h2 className="text-lg font-black text-gray-800 mb-2">
                 {totalProfit > 0 ? "Business Success!" : "Learning Experience!"}
               </h2>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-4 text-sm">
-                <div className="flex justify-between mb-2">
+              <div className="bg-gray-50 rounded-lg p-3 mb-3 text-xs">
+                <div className="flex justify-between mb-1.5">
                   <span className="text-gray-600">Total Cups Sold:</span>
                   <span className="font-bold">{totalCupsSold}</span>
                 </div>
-                <div className="flex justify-between mb-2">
+                <div className="flex justify-between mb-1.5">
                   <span className="text-gray-600">Final Cash:</span>
                   <span className="font-bold">£{game.cash.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between border-t pt-2">
+                <div className="flex justify-between border-t pt-1.5">
                   <span className="text-gray-600">Total Profit:</span>
                   <span
                     className={`font-black ${
@@ -560,28 +559,28 @@ export function LemonadeStand({ difficulty }: Props) {
                 </div>
               </div>
 
-              <div className="flex justify-center gap-2 mb-4">
+              <div className="flex justify-center gap-1.5 mb-3">
                 {[1, 2, 3].map((s) => (
                   <span
                     key={s}
-                    className={`text-2xl ${s <= stars ? "opacity-100" : "opacity-20"}`}
+                    className={`text-xl ${s <= stars ? "opacity-100" : "opacity-20"}`}
                   >
                     ⭐
                   </span>
                 ))}
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={initGame}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-yellow-100 text-yellow-700 font-bold hover:bg-yellow-200"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-yellow-100 text-yellow-700 font-bold text-sm hover:bg-yellow-200"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3.5 h-3.5" />
                   Again
                 </button>
                 <button
                   onClick={() => router.push("/games/finance")}
-                  className="flex-1 py-3 rounded-xl bg-[#FFE135] text-gray-800 font-bold hover:opacity-90"
+                  className="flex-1 py-2.5 rounded-lg bg-[#FFE135] text-gray-800 font-bold text-sm hover:opacity-90"
                 >
                   Back
                 </button>

@@ -1,20 +1,34 @@
 "use client";
 
-import { Suspense } from "react";
+export const dynamic = "force-dynamic";
+
+import { Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { BudgetBoss } from "@/components/games/finance/BudgetBoss";
 import { useChildStore } from "@/lib/stores/child-store";
+import { useGameProgress } from "@/hooks/useGameProgress";
 import type { DifficultyTier } from "@/types/game";
 
 function BudgetBossContent() {
   const searchParams = useSearchParams();
   const { activeChild } = useChildStore();
+  const { saveProgress } = useGameProgress("finance", "budget-boss");
 
   const levelParam = searchParams.get("level");
   const currentLevel = activeChild?.levels?.finance?.level ?? 1;
   const difficulty = (levelParam ? parseInt(levelParam, 10) : currentLevel) as DifficultyTier;
 
-  return <BudgetBoss difficulty={difficulty} />;
+  const handleComplete = useCallback(
+    async (result: { correct: number; total: number; stars: 0 | 1 | 2 | 3 }) => {
+      await saveProgress(
+        { correct: result.correct, total: result.total },
+        difficulty
+      );
+    },
+    [saveProgress, difficulty]
+  );
+
+  return <BudgetBoss difficulty={difficulty} onComplete={handleComplete} />;
 }
 
 export default function BudgetBossPage() {

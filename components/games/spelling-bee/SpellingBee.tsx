@@ -32,8 +32,15 @@ import type { SpellingBeeQuestion } from "@/types/english";
 
 const QUESTIONS_PER_SESSION = 8;
 
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
+}
+
 interface Props {
   difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
 }
 
 function LetterTile({ id, letter }: { id: string; letter: string }) {
@@ -49,7 +56,7 @@ function LetterTile({ id, letter }: { id: string; letter: string }) {
         transition,
         opacity: isDragging ? 0 : 1,
       }}
-      className="w-14 h-14 rounded-2xl bg-[#FFB800] text-white font-black text-2xl uppercase flex items-center justify-center cursor-grab active:cursor-grabbing select-none shadow-md touch-none"
+      className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#FFB800] text-white font-black text-xl uppercase flex items-center justify-center cursor-grab active:cursor-grabbing select-none shadow-md touch-none"
     >
       {letter}
     </div>
@@ -58,13 +65,13 @@ function LetterTile({ id, letter }: { id: string; letter: string }) {
 
 function DragTile({ letter }: { letter: string }) {
   return (
-    <div className="w-14 h-14 rounded-2xl bg-[#FF9500] text-white font-black text-2xl uppercase flex items-center justify-center shadow-2xl rotate-3 scale-110 select-none">
+    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#FF9500] text-white font-black text-xl uppercase flex items-center justify-center shadow-2xl rotate-3 scale-110 select-none">
       {letter}
     </div>
   );
 }
 
-export function SpellingBee({ difficulty }: Props) {
+export function SpellingBee({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { speak, isSpeaking } = useTTS();
   const { playSound } = useAudio();
@@ -142,7 +149,14 @@ export function SpellingBee({ difficulty }: Props) {
 
     setTimeout(() => {
       if (currentIdx + 1 >= QUESTIONS_PER_SESSION) {
+        const finalScore = correct ? score + 1 : score;
+        const finalStars = finalScore >= 7 ? 3 : finalScore >= 5 ? 2 : finalScore >= 3 ? 1 : 0;
         setIsComplete(true);
+        onComplete?.({
+          correct: finalScore,
+          total: QUESTIONS_PER_SESSION,
+          stars: finalStars as 0 | 1 | 2 | 3,
+        });
       } else {
         setCurrentIdx((i) => i + 1);
         setSubmitted(false);
@@ -187,23 +201,23 @@ export function SpellingBee({ difficulty }: Props) {
         <motion.div className="h-full bg-[#FFB800]" animate={{ width: `${(currentIdx / QUESTIONS_PER_SESSION) * 100}%` }} transition={{ type: "spring" }} />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-6">
-        <p className="text-gray-500 text-sm text-center">Drag the letters to spell the word!</p>
+      <div className="flex-1 flex flex-col items-center justify-center px-3 py-4 gap-4">
+        <p className="text-gray-500 text-xs text-center">Drag the letters to spell the word!</p>
 
-        {/* Emoji + hint */}
-        <div className="flex flex-col items-center gap-3">
-          <span className="text-7xl">{currentQ.word.emoji}</span>
+        {/* Emoji + hint - more compact */}
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-5xl">{currentQ.word.emoji}</span>
           <button
             onClick={() => speak(currentQ.word.word)}
-            className="flex items-center gap-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-full px-4 py-2 text-sm transition-colors"
+            className="flex items-center gap-1.5 bg-yellow-100 text-yellow-800 rounded-full px-3 py-1.5 text-xs transition-colors"
           >
-            <Volume2 className="w-4 h-4" />
+            <Volume2 className="w-3.5 h-3.5" />
             {isSpeaking ? "Speaking…" : "Hear the word"}
           </button>
         </div>
 
-        {/* Drop zone preview */}
-        <div className={`min-w-[180px] px-4 py-3 rounded-2xl border-2 border-dashed text-center font-black text-2xl uppercase tracking-widest transition-colors ${
+        {/* Drop zone preview - smaller */}
+        <div className={`min-w-[140px] px-3 py-2 rounded-xl border-2 border-dashed text-center font-black text-xl uppercase tracking-wider transition-colors ${
           submitted
             ? isCorrect
               ? "border-green-400 bg-green-50 text-green-700"
@@ -224,7 +238,7 @@ export function SpellingBee({ difficulty }: Props) {
           onDragCancel={handleDragCancel}
         >
           <SortableContext items={arranged.map((t) => t.id)} strategy={horizontalListSortingStrategy}>
-            <div className="flex gap-3 flex-wrap justify-center">
+            <div className="flex gap-2 flex-wrap justify-center">
               {arranged.map((tile) => (
                 <div key={tile.id} onClick={() => !submitted && !activeId && handleTapLetter(tile.id)}>
                   <LetterTile id={tile.id} letter={tile.letter} />
@@ -239,18 +253,18 @@ export function SpellingBee({ difficulty }: Props) {
           </DragOverlay>
         </DndContext>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={handleReshuffle}
             disabled={submitted}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-100 text-yellow-700 font-semibold text-sm hover:bg-yellow-200 disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-yellow-100 text-yellow-700 font-semibold text-xs disabled:opacity-40 transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />Shuffle
+            <RefreshCw className="w-3.5 h-3.5" />Shuffle
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitted || currentWord.length !== currentQ.correctAnswer.length}
-            className="px-8 py-2 rounded-xl bg-[#FFB800] text-white font-bold text-sm hover:opacity-90 disabled:opacity-40 transition-opacity"
+            className="px-6 py-2 rounded-lg bg-[#FFB800] text-white font-bold text-sm disabled:opacity-40 transition-opacity"
           >
             Check!
           </button>
@@ -259,7 +273,7 @@ export function SpellingBee({ difficulty }: Props) {
         <AnimatePresence>
           {submitted && (
             <motion.div
-              className={`px-6 py-3 rounded-2xl font-bold text-white ${isCorrect ? "bg-green-500" : "bg-red-400"}`}
+              className={`px-4 py-2 rounded-xl font-bold text-white text-sm ${isCorrect ? "bg-green-500" : "bg-red-400"}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}

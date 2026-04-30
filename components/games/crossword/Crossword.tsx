@@ -13,11 +13,18 @@ import type { CrosswordQuestion, CrosswordClue } from "@/types/english";
 const COLOR = "#9B59B6";
 const BG = "#F8F0FF";
 
-interface Props {
-  difficulty: DifficultyTier;
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
 }
 
-export function Crossword({ difficulty }: Props) {
+interface Props {
+  difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
+}
+
+export function Crossword({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { speak } = useTTS();
   const { playSound } = useAudio();
@@ -86,7 +93,13 @@ export function Crossword({ difficulty }: Props) {
         setScore(newScore);
         setRoundsPlayed(newRound);
         if (newRound >= TOTAL_ROUNDS) {
+          const finalStars = newScore >= 3 ? 3 : newScore >= 2 ? 2 : newScore >= 1 ? 1 : 0;
           setIsComplete(true);
+          onComplete?.({
+            correct: newScore,
+            total: TOTAL_ROUNDS,
+            stars: finalStars as 0 | 1 | 2 | 3,
+          });
         } else {
           setTimeout(() => initPuzzle(), 800);
         }
@@ -140,25 +153,25 @@ export function Crossword({ difficulty }: Props) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-3 py-3 gap-3 overflow-auto">
+      <div className="flex-1 flex flex-col items-center px-2 py-2 gap-2 overflow-auto">
         {/* How-to-play hint — shown until first clue is picked */}
         {!activeClue && solvedClues.size === 0 && (
           <motion.div
-            className="w-full max-w-sm bg-purple-50 border border-purple-200 rounded-2xl px-4 py-2.5 flex items-center gap-2"
+            className="w-full max-w-sm bg-purple-50 border border-purple-200 rounded-xl px-3 py-2 flex items-center gap-2"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <span className="text-lg">💡</span>
-            <p className="text-xs text-purple-700 font-medium">
+            <span className="text-base">💡</span>
+            <p className="text-[11px] text-purple-700 font-medium">
               Tap a clue below, then type the word and press ✓
             </p>
           </motion.div>
         )}
 
-        {/* Grid */}
-        <div className="bg-white rounded-2xl shadow-md p-3 inline-block">
+        {/* Grid - more compact cells */}
+        <div className="bg-white rounded-xl shadow-sm p-2 inline-block">
           <div
-            className="grid gap-0.5"
+            className="grid gap-px"
             style={{ gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))` }}
           >
             {puzzle.grid.map((row, r) =>
@@ -179,7 +192,7 @@ export function Crossword({ difficulty }: Props) {
                   return (
                     <div
                       key={`${r}-${c}`}
-                      className="w-7 h-7 bg-gray-800 rounded-sm"
+                      className="w-6 h-6 bg-gray-800 rounded-sm"
                     />
                   );
                 }
@@ -187,16 +200,16 @@ export function Crossword({ difficulty }: Props) {
                 return (
                   <div
                     key={`${r}-${c}`}
-                    className={`w-7 h-7 border rounded-sm relative flex items-center justify-center text-xs font-bold ${
+                    className={`w-6 h-6 border rounded-sm relative flex items-center justify-center text-[10px] font-bold ${
                       isActive ? "border-purple-500 bg-purple-50" : "border-gray-300 bg-white"
                     }`}
                   >
                     {clueNum && (
-                      <span className="absolute top-0 left-0 text-[7px] text-purple-600 leading-none p-0.5">
+                      <span className="absolute top-0 left-0 text-[6px] text-purple-600 leading-none p-px">
                         {clueNum}
                       </span>
                     )}
-                    <span className={`text-xs font-black uppercase ${isActive ? "text-purple-700" : "text-gray-800"}`}>
+                    <span className={`text-[10px] font-black uppercase ${isActive ? "text-purple-700" : "text-gray-800"}`}>
                       {userChar}
                     </span>
                   </div>
@@ -206,26 +219,26 @@ export function Crossword({ difficulty }: Props) {
           </div>
         </div>
 
-        {/* Active clue input */}
+        {/* Active clue input - more compact */}
         {activeClue && (
           <motion.div
-            className="w-full max-w-sm bg-white rounded-2xl shadow-md p-4"
+            className="w-full max-w-sm bg-white rounded-xl shadow-sm p-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-1.5 mb-2">
               <span
-                className="text-xs font-bold text-white px-2 py-0.5 rounded-full uppercase"
+                className="text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full uppercase"
                 style={{ backgroundColor: COLOR }}
               >
                 {activeClue.number} {activeClue.direction}
               </span>
-              <span className="text-lg">{activeClue.clue}</span>
-              <button onClick={() => speak(activeClue.answer)} className="ml-auto text-purple-400 hover:text-purple-600">
-                <Volume2 className="w-4 h-4" />
+              <span className="text-sm flex-1">{activeClue.clue}</span>
+              <button onClick={() => speak(activeClue.answer)} className="text-purple-400 p-1">
+                <Volume2 className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <input
                 type="text"
                 value={inputValue}
@@ -234,19 +247,19 @@ export function Crossword({ difficulty }: Props) {
                 maxLength={activeClue.answer.length}
                 placeholder={`${activeClue.answer.length} letters…`}
                 autoFocus
-                className="flex-1 border-2 border-purple-200 rounded-xl px-3 py-2 text-sm font-bold uppercase tracking-widest focus:outline-none focus:border-purple-500"
+                className="flex-1 border-2 border-purple-200 rounded-lg px-2 py-1.5 text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-purple-500"
               />
               <button
                 onClick={handleAnswerSubmit}
                 disabled={!inputValue}
-                className="px-4 py-2 rounded-xl text-white font-bold text-sm disabled:opacity-50"
+                className="px-3 py-1.5 rounded-lg text-white font-bold text-xs disabled:opacity-50"
                 style={{ backgroundColor: COLOR }}
               >
                 ✓
               </button>
               <button
                 onClick={() => setActiveClue(null)}
-                className="px-3 py-2 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm"
+                className="px-2 py-1.5 rounded-lg bg-gray-100 text-gray-600 font-bold text-xs"
               >
                 ✕
               </button>
@@ -254,13 +267,13 @@ export function Crossword({ difficulty }: Props) {
           </motion.div>
         )}
 
-        {/* Clues panel */}
+        {/* Clues panel - more compact */}
         <div className="w-full max-w-sm">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             {["across", "down"].map((dir) => (
-              <div key={dir} className="bg-white rounded-2xl shadow-sm p-3">
-                <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">{dir}</h3>
-                <div className="space-y-1.5">
+              <div key={dir} className="bg-white rounded-xl shadow-sm p-2">
+                <h3 className="text-[10px] font-bold text-gray-500 uppercase mb-1.5">{dir}</h3>
+                <div className="space-y-1">
                   {puzzle.clues
                     .filter((cl) => cl.direction === dir)
                     .map((cl) => {
@@ -271,20 +284,20 @@ export function Crossword({ difficulty }: Props) {
                           key={cl.number}
                           onClick={() => !solved && handleClueSelect(cl)}
                           disabled={solved}
-                          className={`w-full text-left text-xs flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors ${
+                          className={`w-full text-left text-[10px] flex items-center gap-1 px-1.5 py-1 rounded transition-colors ${
                             solved
                               ? "bg-green-50 text-green-600 line-through"
                               : isActive
                               ? "font-bold ring-1 ring-purple-400"
-                              : "hover:bg-purple-50 cursor-pointer"
+                              : "active:bg-purple-50 cursor-pointer"
                           }`}
                           style={isActive && !solved ? { backgroundColor: "#F8F0FF", color: COLOR } : {}}
                         >
-                          <span className="font-bold w-4 shrink-0">{cl.number}.</span>
-                          <span className="flex-1">{cl.clue}</span>
+                          <span className="font-bold w-3 shrink-0">{cl.number}.</span>
+                          <span className="flex-1 truncate">{cl.clue}</span>
                           {solved
-                            ? <CheckCircle className="w-3 h-3 ml-auto shrink-0" />
-                            : <span className="text-[9px] text-gray-400 shrink-0 ml-1">({cl.answer.length})</span>
+                            ? <CheckCircle className="w-2.5 h-2.5 ml-auto shrink-0" />
+                            : <span className="text-[8px] text-gray-400 shrink-0 ml-0.5">({cl.answer.length})</span>
                           }
                         </button>
                       );
@@ -296,7 +309,7 @@ export function Crossword({ difficulty }: Props) {
 
           {showCheck && (
             <motion.div
-              className="mt-2 bg-purple-100 rounded-xl p-3 text-center text-sm text-purple-700 font-medium"
+              className="mt-1.5 bg-purple-100 rounded-lg p-2 text-center text-xs text-purple-700 font-medium"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -310,7 +323,7 @@ export function Crossword({ difficulty }: Props) {
           {!activeClue && (
             <button
               onClick={handleCheckAll}
-              className="mt-2 w-full py-2 rounded-xl text-xs font-bold border-2 border-purple-200 text-purple-500 hover:bg-purple-50"
+              className="mt-1.5 w-full py-1.5 rounded-lg text-[10px] font-bold border border-purple-200 text-purple-500"
             >
               Check progress
             </button>

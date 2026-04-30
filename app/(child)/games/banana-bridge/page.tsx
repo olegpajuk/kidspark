@@ -161,7 +161,7 @@ function BananaBridgeGameContent() {
         setCurrentQuestionIndex(nextIndex);
       }
     },
-    [results, currentQuestionIndex, questions.length, difficulty]
+    [results, currentQuestionIndex, questions.length, difficulty, user, activeChild, setActiveChild]
   );
 
   const handleExit = useCallback(() => {

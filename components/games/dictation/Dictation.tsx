@@ -133,42 +133,42 @@ export function Dictation({ difficulty }: Props) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-4 py-6 gap-5">
+      <div className="flex-1 flex flex-col items-center px-3 py-4 gap-4">
         {/* Type indicator */}
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Volume2 className="w-4 h-4" style={{ color: COLOR }} />
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <Volume2 className="w-3.5 h-3.5" style={{ color: COLOR }} />
           <span>
             {currentQ.type === "word" ? "Listen and type the word" : "Listen and type the sentence"}
           </span>
         </div>
 
-        {/* Play buttons */}
-        <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-gray-400 font-medium">Play the audio:</p>
-            <span className="text-xs text-gray-400">Played {playCount} times</span>
+        {/* Play buttons - more compact */}
+        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] text-gray-400 font-medium">Play the audio:</p>
+            <span className="text-[10px] text-gray-400">Played {playCount}x</span>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1.5">
             {SPEEDS.map(({ rate, label, emoji }) => (
               <button
                 key={rate}
                 onClick={() => handleSpeak(rate)}
                 disabled={isSpeaking || submitted}
-                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40 ${
-                  isSpeaking ? "animate-pulse" : "hover:opacity-90 active:scale-95"
+                className={`flex flex-col items-center gap-1 py-2 rounded-lg text-[10px] font-bold transition-all disabled:opacity-40 ${
+                  isSpeaking ? "animate-pulse" : "active:scale-95"
                 }`}
                 style={{ backgroundColor: `${COLOR}22`, color: COLOR }}
               >
-                <span className="text-xl">{isSpeaking ? "🔊" : emoji}</span>
+                <span className="text-base">{isSpeaking ? "🔊" : emoji}</span>
                 <span>{isSpeaking ? "…" : label}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Input area */}
-        <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-5">
-          <p className="text-xs text-gray-400 mb-3">Type what you heard:</p>
+        {/* Input area - more compact */}
+        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-3">
+          <p className="text-[10px] text-gray-400 mb-2">Type what you heard:</p>
           <input
             ref={inputRef}
             type="text"
@@ -177,7 +177,7 @@ export function Dictation({ difficulty }: Props) {
             onKeyDown={(e) => e.key === "Enter" && !submitted && handleSubmit()}
             disabled={submitted}
             placeholder="Type here…"
-            className={`w-full border-2 rounded-xl px-4 py-3 text-base font-medium focus:outline-none transition-colors ${
+            className={`w-full border-2 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none transition-colors ${
               submitted
                 ? isCorrect
                   ? "border-green-400 bg-green-50 text-green-700"
@@ -188,18 +188,18 @@ export function Dictation({ difficulty }: Props) {
 
           {submitted && !isCorrect && (
             <motion.div
-              className="mt-3 p-3 bg-gray-50 rounded-xl border border-gray-200"
+              className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200"
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <p className="text-xs text-gray-400 mb-1">Correct answer:</p>
-              <p className="text-sm font-bold text-green-700">{currentQ.text}</p>
+              <p className="text-[10px] text-gray-400 mb-0.5">Correct answer:</p>
+              <p className="text-xs font-bold text-green-700">{currentQ.text}</p>
             </motion.div>
           )}
 
           {submitted && isCorrect && (
             <motion.p
-              className="mt-3 text-center text-sm font-bold text-green-600"
+              className="mt-2 text-center text-xs font-bold text-green-600"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -212,7 +212,7 @@ export function Dictation({ difficulty }: Props) {
           <button
             onClick={handleSubmit}
             disabled={!input.trim()}
-            className="px-8 py-3 rounded-2xl text-white font-bold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-40"
+            className="px-6 py-2.5 rounded-xl text-white font-bold text-xs transition-all active:scale-95 disabled:opacity-40"
             style={{ backgroundColor: COLOR }}
           >
             Submit Answer

@@ -1,5 +1,5 @@
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "./config";
+import { getClientDb } from "./config";
 import type { Child, SubjectId, ChildLevel } from "@/types/child";
 import type { DifficultyTier } from "@/types/game";
 import type { GameSession } from "@/types/progress";
@@ -9,6 +9,7 @@ const XP_PER_LEVEL = 100;
 const MAX_LEVEL = 50;
 
 function childDoc(parentUid: string, childId: string) {
+  const db = getClientDb();
   return doc(db, "users", parentUid, "children", childId);
 }
 

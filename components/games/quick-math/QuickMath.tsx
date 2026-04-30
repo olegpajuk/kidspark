@@ -747,30 +747,17 @@ export function QuickMath({
           >
             <Sparkles active={answerState === "correct"} />
 
-            {/* Exit Button - Top Right */}
-            <motion.button
-              onClick={() => setShowExitModal(true)}
-              className="fixed top-16 right-3 z-30 w-10 h-10 bg-white/90 rounded-full shadow-lg border-2 border-gray-200 flex items-center justify-center hover:bg-red-50 hover:border-red-300 transition-colors"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              title="Exit game"
-            >
-              <X className="w-5 h-5 text-gray-600 hover:text-red-500" />
-            </motion.button>
-
-            {/* Floating Frogs Counter - Left Side */}
+            {/* Lives (frogs) - Below header, left side */}
             <motion.div
-              className="fixed left-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 bg-white/95 rounded-2xl p-2 shadow-lg border-2 border-green-400"
-              initial={{ x: -100 }}
-              animate={{ x: 0 }}
+              className="absolute top-16 left-3 z-20 flex items-center gap-0.5"
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <div className="text-xs font-bold text-green-700 mb-1">Lives</div>
               {Array.from({ length: maxLives }, (_, i) => (
-                <motion.div
+                <motion.span
                   key={i}
-                  className={`text-2xl ${i < lives ? "" : "grayscale opacity-30"}`}
+                  className={`text-lg ${i < lives ? "" : "grayscale opacity-30"}`}
                   animate={i === lives - 1 && (answerState === "timeout" || answerState === "wrong") 
                     ? { scale: [1, 1.5, 0], rotate: [0, 20, -20, 0] } 
                     : {}
@@ -778,36 +765,46 @@ export function QuickMath({
                   transition={{ duration: 0.5 }}
                 >
                   🐸
-                </motion.div>
+                </motion.span>
               ))}
-              <div className="mt-1 text-lg font-bold text-green-600">{lives}</div>
             </motion.div>
 
-            {/* Floating Stars Counter - Right Side */}
+            {/* Stars - Below header, right side */}
             <motion.div
-              className="fixed right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 bg-white/95 rounded-2xl p-2 shadow-lg border-2 border-yellow-400"
-              initial={{ x: 100 }}
-              animate={{ x: 0 }}
+              className="absolute top-16 right-3 z-20 flex items-center gap-2"
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <div className="text-xs font-bold text-yellow-700 mb-1">Stars</div>
-              <motion.div 
-                className="text-3xl"
-                animate={answerState === "correct" ? { scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] } : {}}
-              >
-                ⭐
-              </motion.div>
-              <div className="text-xl font-bold text-yellow-600">{stars}</div>
+              {/* Settings button */}
               <button
                 onClick={() => setShowSettingsModal(true)}
-                className="mt-2 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+                className="w-7 h-7 bg-white/80 rounded-full flex items-center justify-center hover:bg-white shadow-sm"
               >
-                <Settings className="w-4 h-4 text-gray-600" />
+                <Settings className="w-3.5 h-3.5 text-gray-500" />
+              </button>
+              
+              {/* Stars display */}
+              <motion.div 
+                className="flex items-center gap-1"
+                animate={answerState === "correct" ? { scale: [1, 1.2, 1] } : {}}
+              >
+                <span className="text-lg">⭐</span>
+                <span className="text-lg font-bold text-amber-600">{stars}</span>
+              </motion.div>
+              
+              {/* Exit button */}
+              <button
+                onClick={() => setShowExitModal(true)}
+                className="w-7 h-7 bg-white/80 rounded-full flex items-center justify-center hover:bg-red-50 shadow-sm"
+                title="Exit game"
+              >
+                <X className="w-3.5 h-3.5 text-gray-500" />
               </button>
             </motion.div>
 
             {/* Question number */}
-            <div className="text-center py-2">
+            <div className="text-center pt-20 pb-1">
               <span className="text-sm text-gray-500">Question {questionNumber}</span>
             </div>
 
@@ -815,47 +812,47 @@ export function QuickMath({
             <AnimatePresence>
               {answerState !== "waiting" && (
                 <motion.div
-                  className={`absolute top-20 left-4 right-4 text-center z-10`}
+                  className="absolute top-28 left-4 right-4 text-center z-10"
                   initial={{ opacity: 0, y: -20, scale: 0.8 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0 }}
                 >
                   {answerState === "correct" && (
-                    <div className="inline-block bg-green-500 text-white px-6 py-3 rounded-2xl shadow-lg">
-                      <span className="text-2xl font-bold">✓ Correct! +⭐</span>
+                    <div className="inline-block bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg">
+                      <span className="text-lg font-bold">✓ Correct! +⭐</span>
                     </div>
                   )}
                   {answerState === "wrong" && (
-                    <div className="inline-block bg-red-500 text-white px-6 py-3 rounded-2xl shadow-lg">
-                      <span className="text-2xl font-bold">✗ Wrong!</span>
+                    <div className="inline-block bg-red-500 text-white px-4 py-2 rounded-xl shadow-lg">
+                      <span className="text-lg font-bold">✗ Wrong!</span>
                     </div>
                   )}
                   {answerState === "timeout" && (
-                    <div className="inline-block bg-orange-500 text-white px-6 py-3 rounded-2xl shadow-lg">
-                      <span className="text-2xl font-bold">⏰ Time&apos;s up!</span>
+                    <div className="inline-block bg-orange-500 text-white px-4 py-2 rounded-xl shadow-lg">
+                      <span className="text-lg font-bold">⏰ Time&apos;s up!</span>
                     </div>
                   )}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Main question area */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-8 p-4">
-              {/* Equation */}
+            {/* Main question area - more compact */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 px-3 py-2">
+              {/* Equation - smaller on mobile */}
               <motion.div
-                className="bg-white rounded-3xl px-10 py-8 shadow-xl"
+                className="bg-white rounded-2xl px-4 py-4 sm:px-8 sm:py-6 shadow-lg"
                 key={question.num1 + question.operation + question.num2}
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
               >
-                <div className="flex items-center justify-center gap-4 text-5xl font-bold">
+                <div className="flex items-center justify-center gap-2 sm:gap-4 text-3xl sm:text-5xl font-bold">
                   <span className="text-blue-600">{question.num1}</span>
                   <span className="text-gray-400">{OPERATION_SYMBOLS[question.operation]}</span>
                   <span className="text-green-600">{question.num2}</span>
                   <span className="text-gray-400">=</span>
                   
-                  {/* Flip card for answer */}
-                  <div className="relative w-20 h-20" style={{ perspective: "1000px" }}>
+                  {/* Flip card for answer - smaller on mobile */}
+                  <div className="relative w-14 h-14 sm:w-20 sm:h-20" style={{ perspective: "1000px" }}>
                     <motion.div
                       className="w-full h-full relative"
                       style={{ transformStyle: "preserve-3d" }}
@@ -867,7 +864,7 @@ export function QuickMath({
                     >
                       {/* Front: Question mark */}
                       <div 
-                        className="absolute inset-0 bg-gray-100 rounded-2xl flex items-center justify-center text-purple-400 border-4 border-gray-200"
+                        className="absolute inset-0 bg-gray-100 rounded-xl flex items-center justify-center text-purple-400 border-3 border-gray-200"
                         style={{ backfaceVisibility: "hidden" }}
                       >
                         ?
@@ -875,7 +872,7 @@ export function QuickMath({
                       
                       {/* Back: Correct answer */}
                       <div 
-                        className={`absolute inset-0 rounded-2xl flex items-center justify-center border-4 ${
+                        className={`absolute inset-0 rounded-xl flex items-center justify-center border-3 ${
                           answerState === "correct" 
                             ? "bg-green-100 text-green-700 border-green-400"
                             : "bg-orange-100 text-orange-700 border-orange-400"
@@ -892,8 +889,8 @@ export function QuickMath({
                 </div>
               </motion.div>
 
-              {/* Answer options */}
-              <div className="flex gap-4">
+              {/* Answer options - smaller on mobile but still touchable */}
+              <div className="flex gap-3">
                 {question.options.map((opt, i) => {
                   const isCorrect = opt === question.answer;
                   const showResult = answerState !== "waiting";
@@ -903,14 +900,13 @@ export function QuickMath({
                       key={`${opt}-${i}`}
                       onClick={() => handleAnswer(opt)}
                       disabled={answerState !== "waiting"}
-                      className={`w-24 h-24 rounded-2xl text-4xl font-bold border-4 transition-all shadow-lg ${
+                      className={`w-20 h-20 sm:w-24 sm:h-24 rounded-xl text-3xl sm:text-4xl font-bold border-3 transition-all shadow-md ${
                         showResult
                           ? isCorrect
                             ? "bg-green-100 border-green-500 text-green-700"
                             : "bg-red-50 border-red-300 text-red-400 opacity-50"
-                          : "bg-white border-purple-200 text-purple-700 hover:border-purple-400 hover:scale-110"
+                          : "bg-white border-purple-200 text-purple-700 hover:border-purple-400 active:scale-95"
                       }`}
-                      whileHover={answerState === "waiting" ? { scale: 1.1 } : {}}
                       whileTap={answerState === "waiting" ? { scale: 0.95 } : {}}
                       animate={
                         showResult && !isCorrect
@@ -927,16 +923,16 @@ export function QuickMath({
               </div>
             </div>
 
-            {/* Snake-Frog Timer */}
-            <div className="p-4 bg-white/80">
-              <div className="relative h-16 bg-gradient-to-r from-green-200 to-green-100 rounded-2xl overflow-hidden border-2 border-green-300">
+            {/* Snake-Frog Timer - Compact */}
+            <div className="px-3 pb-3 pt-1 bg-white/80">
+              <div className="relative h-12 bg-gradient-to-r from-green-200 to-green-100 rounded-xl overflow-hidden border-2 border-green-300">
                 {/* Grass/ground */}
-                <div className="absolute bottom-0 left-0 right-0 h-4 bg-green-400" />
+                <div className="absolute bottom-0 left-0 right-0 h-3 bg-green-400" />
                 
                 {/* Frog (at the right end) */}
                 <motion.div
-                  className="absolute right-2 bottom-2 text-4xl z-10"
-                  animate={timeLeft < 30 ? { y: [0, -3, 0] } : {}}
+                  className="absolute right-1.5 bottom-1 text-2xl z-10"
+                  animate={timeLeft < 30 ? { y: [0, -2, 0] } : {}}
                   transition={{ duration: 0.3, repeat: Infinity }}
                 >
                   🐸
@@ -944,11 +940,9 @@ export function QuickMath({
 
                 {/* Snake (progresses from left) */}
                 <motion.div
-                  className="absolute bottom-1 text-4xl z-10"
+                  className="absolute bottom-0.5 text-2xl z-10"
                   style={{ left: `${Math.max(0, 100 - timeLeft - 5)}%` }}
-                  animate={{ 
-                    scaleX: [1, 1.1, 1],
-                  }}
+                  animate={{ scaleX: [1, 1.1, 1] }}
                   transition={{ duration: 0.5, repeat: Infinity }}
                 >
                   🐍
@@ -964,7 +958,7 @@ export function QuickMath({
                 />
 
                 {/* Time text */}
-                <div className="absolute top-1 left-1/2 -translate-x-1/2 text-xs font-bold text-gray-600 bg-white/80 px-2 py-0.5 rounded-full">
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-600 bg-white/80 px-2 py-0.5 rounded-full">
                   {Math.ceil((timeLeft / 100) * speedSeconds)}s
                 </div>
               </div>

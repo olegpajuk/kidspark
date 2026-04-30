@@ -50,8 +50,15 @@ function loadCustomWords(): string[] {
   } catch { return []; }
 }
 
+interface GameResult {
+  correct: number;
+  total: number;
+  stars: 0 | 1 | 2 | 3;
+}
+
 interface Props {
   difficulty: DifficultyTier;
+  onComplete?: (result: GameResult) => void;
 }
 
 interface CellPos { row: number; col: number; }
@@ -72,7 +79,7 @@ function getCellsBetween(start: CellPos, end: CellPos): CellPos[] {
   return cells;
 }
 
-export function WordSearch({ difficulty }: Props) {
+export function WordSearch({ difficulty, onComplete }: Props) {
   const router = useRouter();
   const { playSound } = useAudio();
 
@@ -252,7 +259,13 @@ export function WordSearch({ difficulty }: Props) {
         setScore(newScore);
         setRoundsPlayed(newRound);
         if (newRound >= TOTAL_ROUNDS) {
+          const finalStars = newScore >= 3 ? 3 : newScore >= 2 ? 2 : newScore >= 1 ? 1 : 0;
           setIsComplete(true);
+          onComplete?.({
+            correct: newScore,
+            total: TOTAL_ROUNDS,
+            stars: finalStars as 0 | 1 | 2 | 3,
+          });
         } else {
           setTimeout(() => initPuzzle(), 800);
         }
@@ -260,7 +273,7 @@ export function WordSearch({ difficulty }: Props) {
     } else {
       playSound("wrong");
     }
-  }, [puzzle, foundWords, foundCells, playSound, score, roundsPlayed, initPuzzle]);
+  }, [puzzle, foundWords, foundCells, playSound, score, roundsPlayed, initPuzzle, onComplete]);
 
   const handlePointerDown = (e: React.PointerEvent, row: number, col: number) => {
     e.preventDefault();
@@ -320,9 +333,9 @@ export function WordSearch({ difficulty }: Props) {
           transition={{ type: "spring", stiffness: 300, damping: 30 }} />
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-3 py-3 gap-3">
-        {/* Word chips — tap found word to peek */}
-        <div className="flex flex-wrap gap-2 justify-center w-full max-w-md">
+      <div className="flex-1 flex flex-col items-center px-2 py-2 gap-2">
+        {/* Word chips — more compact */}
+        <div className="flex flex-wrap gap-1.5 justify-center w-full max-w-md">
           {puzzle.hiddenWords.map((word) => {
             const found = foundWords.has(word);
             const isPeeked = peekedWord === word;
@@ -331,33 +344,33 @@ export function WordSearch({ difficulty }: Props) {
                 key={word}
                 onClick={() => found && handlePeekWord(word)}
                 disabled={!found}
-                className={`px-3 py-1 rounded-full text-sm font-bold transition-all flex items-center gap-1 ${
-                  isPeeked ? "scale-110" : ""
-                } ${found ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}
+                className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all flex items-center gap-0.5 ${
+                  isPeeked ? "scale-105" : ""
+                } ${found ? "cursor-pointer" : "cursor-default"}`}
                 style={{
                   backgroundColor: found ? "#e5e7eb" : `${wordColorMap[word]}22`,
                   color: found ? (isPeeked ? wordColorMap[word] : "#6b7280") : wordColorMap[word],
-                  border: `2px solid ${found ? (isPeeked ? wordColorMap[word] : "#e5e7eb") : wordColorMap[word]}`,
+                  border: `1.5px solid ${found ? (isPeeked ? wordColorMap[word] : "#e5e7eb") : wordColorMap[word]}`,
                 }}
               >
-                {found && <span className="text-xs">✓</span>}
+                {found && <span className="text-[10px]">✓</span>}
                 <span className={found ? "line-through" : ""}>{word}</span>
-                {found && <Eye className="w-3 h-3 opacity-50" />}
+                {found && <Eye className="w-2.5 h-2.5 opacity-50" />}
               </button>
             );
           })}
         </div>
 
-        {/* Grid */}
+        {/* Grid - fills available space better */}
         <div
           ref={gridRef}
-          className="bg-white rounded-2xl shadow-md p-2 select-none touch-none w-full max-w-md"
+          className="bg-white rounded-xl shadow-sm p-1.5 select-none touch-none w-full max-w-md"
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
           style={{ userSelect: "none" }}
         >
-          <div className="grid" style={{ gridTemplateColumns: `repeat(${puzzle.grid[0]?.length ?? 8}, 1fr)`, gap: "1px" }}>
+          <div className="grid" style={{ gridTemplateColumns: `repeat(${puzzle.grid[0]?.length ?? 8}, 1fr)`, gap: "0px" }}>
             {puzzle.grid.map((row, r) =>
               row.map((letter, c) => {
                 const key = `${r}-${c}`;
@@ -369,14 +382,13 @@ export function WordSearch({ difficulty }: Props) {
                   <div
                     key={key}
                     onPointerDown={(e) => handlePointerDown(e, r, c)}
-                    className="aspect-square flex items-center justify-center font-black uppercase rounded cursor-pointer transition-all"
+                    className="aspect-square flex items-center justify-center font-black uppercase rounded-sm cursor-pointer transition-all"
                     style={{
                       backgroundColor: isPeekedCell ? `${foundColor}66` : foundColor ? `${foundColor}33` : isHighlighted ? `${COLOR}44` : "transparent",
                       color: foundColor ?? (isHighlighted ? COLOR : "#374151"),
-                      fontSize: `clamp(8px, ${100 / puzzle.grid[0].length}vw, 14px)`,
+                      fontSize: `clamp(9px, ${90 / puzzle.grid[0].length}vw, 13px)`,
                       fontWeight: foundColor ? 900 : undefined,
-                      boxShadow: isPeekedCell ? `0 0 0 2px ${foundColor}` : undefined,
-                      borderRadius: isPeekedCell ? "4px" : undefined,
+                      boxShadow: isPeekedCell ? `0 0 0 1.5px ${foundColor}` : undefined,
                     }}
                   >
                     {letter}
@@ -387,31 +399,31 @@ export function WordSearch({ difficulty }: Props) {
           </div>
         </div>
 
-        {/* Action row */}
-        <div className="flex items-center gap-2 w-full max-w-md">
+        {/* Action row - more compact */}
+        <div className="flex items-center gap-1.5 w-full max-w-md">
           <button
             onClick={initPuzzle}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all hover:opacity-80 shrink-0"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0"
             style={{ borderColor: COLOR, color: COLOR, backgroundColor: `${COLOR}11` }}
             title="Same words, new grid layout"
           >
-            <Shuffle className="w-3.5 h-3.5" />
+            <Shuffle className="w-3 h-3" />
             Shuffle
           </button>
 
           <button
             onClick={() => { setDraftSettings(settings); setCustomTags(savedCustomWords); setShowSettings(true); }}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all hover:opacity-80 shrink-0 ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0 ${
               useCustom ? "bg-yellow-50 border-yellow-400 text-yellow-700" : "border-gray-300 text-gray-500"
             }`}
             title="Game settings"
           >
-            <Settings className="w-3.5 h-3.5" />
+            <Settings className="w-3 h-3" />
             Settings
             {useCustom && <span className="ml-0.5">✏️</span>}
           </button>
 
-          <p className="text-xs text-gray-400 flex-1 text-center">Drag to find · tap ✓ to peek</p>
+          <p className="text-[10px] text-gray-400 flex-1 text-center">Drag to find · tap ✓ to peek</p>
         </div>
       </div>
 

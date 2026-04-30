@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useRouter, usePathname } from "next/navigation";
 import { useChildStore } from "@/lib/stores/child-store";
+import { useChildren } from "@/hooks/useChildren";
 
 const AVATAR_EMOJI: Record<string, string> = {
   fox: "🦊",
@@ -26,6 +27,9 @@ export default function ChildLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { activeChild } = useChildStore();
+  
+  // Subscribe to Firebase to keep activeChild synced with real-time updates
+  useChildren();
 
   // Hide bottom nav in games
   const isInGame = pathname?.startsWith("/games/");

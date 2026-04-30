@@ -1,6 +1,7 @@
 import type { SubjectId } from "./child";
 
 export type GameId =
+  | "quick-math"
   | "banana-bridge"
   | "frog-jump"
   | "array-garden"

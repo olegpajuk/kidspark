@@ -113,14 +113,14 @@ export function ListenTap({ difficulty }: Props) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-4 py-6 gap-5">
-        {/* Listen button */}
+      <div className="flex-1 flex flex-col items-center px-3 py-4 gap-4">
+        {/* Listen button - more compact */}
         <motion.button
           key={currentQ.id}
           onClick={playWord}
           disabled={isSpeaking}
-          className="flex flex-col items-center gap-3 bg-white rounded-3xl shadow-lg p-8 w-full max-w-xs transition-all hover:shadow-xl active:scale-95"
-          style={{ border: `3px solid ${isSpeaking ? COLOR : "#e5e7eb"}` }}
+          className="flex flex-col items-center gap-2 bg-white rounded-2xl shadow-md p-5 w-full max-w-xs transition-all active:scale-95"
+          style={{ border: `2px solid ${isSpeaking ? COLOR : "#e5e7eb"}` }}
           whileTap={{ scale: 0.95 }}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -130,25 +130,25 @@ export function ListenTap({ difficulty }: Props) {
             transition={{ repeat: Infinity, duration: 0.6 }}
           >
             <Volume2
-              className="w-12 h-12"
+              className="w-10 h-10"
               style={{ color: isSpeaking ? COLOR : "#d1d5db" }}
             />
           </motion.div>
           <div className="text-center">
-            <p className="font-bold text-gray-700">
+            <p className="font-bold text-gray-700 text-sm">
               {isSpeaking ? "Listening…" : hasListened ? "Hear again" : "Tap to listen!"}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-[10px] text-gray-400 mt-0.5">
               {hasListened ? "Then tap the correct picture below" : "Listen carefully!"}
             </p>
           </div>
         </motion.button>
 
         {!hasListened && (
-          <p className="text-xs text-gray-400 animate-pulse">Getting ready…</p>
+          <p className="text-[10px] text-gray-400 animate-pulse">Getting ready…</p>
         )}
 
-        {/* Options grid */}
+        {/* Options grid - more compact */}
         {hasListened && (
           <AnimatePresence>
             <motion.div
@@ -157,7 +157,7 @@ export function ListenTap({ difficulty }: Props) {
               animate={{ opacity: 1, y: 0 }}
             >
               <div
-                className="grid gap-3"
+                className="grid gap-2"
                 style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
               >
                 {currentQ.options.map((opt) => {
@@ -165,24 +165,24 @@ export function ListenTap({ difficulty }: Props) {
                   const isCorrect = opt.id === currentQ.correctId;
 
                   let ring = "border-2 border-blue-100 bg-white";
-                  if (isSelected && isCorrect) ring = "border-4 border-green-400 bg-green-50";
-                  else if (isSelected && !isCorrect) ring = "border-4 border-red-400 bg-red-50";
-                  else if (selected && isCorrect) ring = "border-4 border-green-400 bg-green-50";
+                  if (isSelected && isCorrect) ring = "border-3 border-green-400 bg-green-50";
+                  else if (isSelected && !isCorrect) ring = "border-3 border-red-400 bg-red-50";
+                  else if (selected && isCorrect) ring = "border-3 border-green-400 bg-green-50";
 
                   return (
                     <motion.button
                       key={opt.id}
                       onClick={() => handleSelect(opt.id)}
                       disabled={!!selected}
-                      className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 transition-all ${ring} ${
-                        !selected ? "hover:border-blue-300 hover:shadow-md active:scale-95" : ""
+                      className={`aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all ${ring} ${
+                        !selected ? "active:scale-95" : ""
                       }`}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     >
-                      <span className="text-3xl">{opt.emoji}</span>
-                      <span className="text-xs font-bold text-gray-600">{opt.word}</span>
+                      <span className="text-2xl">{opt.emoji}</span>
+                      <span className="text-[10px] font-bold text-gray-600">{opt.word}</span>
                     </motion.button>
                   );
                 })}
