@@ -311,7 +311,7 @@ export function OnboardingFlow() {
                 key={`slide-${slideIndex}`}
                 initial={reduceMotion ? false : { opacity: 0, x: 20 }}
                 animate={reduceMotion ? false : { opacity: 1, x: 0 }}
-                exit={reduceMotion ? false : { opacity: 0, x: -20 }}
+                exit={reduceMotion ? undefined : { opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
                 className="flex flex-col bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
               >
@@ -384,7 +384,7 @@ export function OnboardingFlow() {
                 key="terms"
                 initial={reduceMotion ? false : { opacity: 0, y: 20 }}
                 animate={reduceMotion ? false : { opacity: 1, y: 0 }}
-                exit={reduceMotion ? false : { opacity: 0, y: -20 }}
+                exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}
                 className="flex flex-col bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-6">
@@ -455,7 +455,7 @@ export function OnboardingFlow() {
                 key="auth"
                 initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
                 animate={reduceMotion ? false : { opacity: 1, scale: 1 }}
-                exit={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
+                exit={reduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
                 className="flex flex-col bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
               >
                 <div className="text-center mb-6">
