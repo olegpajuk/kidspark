@@ -91,7 +91,7 @@ export default function ProgressPage() {
       
       <div className="grid gap-4 md:grid-cols-2">
         {Object.entries(SUBJECT_COLORS).map(([subject, style], index) => {
-          const subjectData = levels[subject] ?? {};
+          const subjectData = levels[subject as keyof typeof levels] ?? {};
           const level = subjectData.level ?? 1;
           const xp = subjectData.xp ?? 0;
           const xpToNext = 100; // XP_PER_LEVEL constant
